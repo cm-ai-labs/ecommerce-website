@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gross Profit - Inventory Management System</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon">📦</div>
+                    <div>
+                        <div class="sidebar-logo-text">Inventory System</div>
+                        <div class="sidebar-logo-subtitle">Inventory Management</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="../pages/index.html" class="nav-item">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Core Business</div>
+                    <a href="../pages/products.html" class="nav-item">
+                        <span class="nav-item-icon">🏷️</span>
+                        <span>Products</span>
+                        <span class="nav-item-badge" id="products-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/inbound.html" class="nav-item">
+                        <span class="nav-item-icon">📥</span>
+                        <span>Inbound</span>
+                        <span class="nav-item-badge" id="inbound-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/outbound.html" class="nav-item">
+                        <span class="nav-item-icon">📤</span>
+                        <span>Outbound</span>
+                        <span class="nav-item-badge" id="outbound-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/inventory.html" class="nav-item">
+                        <span class="nav-item-icon">📋</span>
+                        <span>Inventory</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports & Analytics</div>
+                    <a href="../pages/profit.html" class="nav-item active">
+                        <span class="nav-item-icon">📈</span>
+                        <span>Gross Profit</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">-</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Loading...</div>
+                        <div class="user-role" id="userRole">-</div>
+                    </div>
+                    <button id="logoutBtn" style="background: none; border: none; cursor: pointer; color: var(--gray-400);" title="Logout">🚪</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <div class="breadcrumb">
+                        <a href="index.html">Home</a>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Gross Profit</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="header-search">
+                        <span class="header-search-icon">🔍</span>
+                        <input type="text" placeholder="Search products, SKU...">
+                    </div>
+                    <button class="header-icon-btn">
+                        <span>🔔</span>
+                        <span class="badge"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Gross Profit Overview</h1>
+                        <p class="page-subtitle">Sales gross profit analysis report based on FIFO cost method</p>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-secondary">
+                            <span>📥</span>
+                            Export Report
+                        </button>
+                        <button class="btn btn-secondary">
+                            <span>🖨️</span>
+                            Print
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Date Range Filter -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-body" style="padding: 16px 24px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <span style="font-weight: 500; color: var(--gray-700);">Date Range:</span>
+                                <div class="date-range">
+                                    <input type="date" class="form-control" style="width: 150px;" id="startDate">
+                                    <span class="date-range-separator">to</span>
+                                    <input type="date" class="form-control" style="width: 150px;" id="endDate">
+                                </div>
+                                <button class="btn btn-primary btn-sm" onclick="handleSearch()">
+                                    <span>🔍</span>
+                                    Search
+                                </button>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-ghost btn-sm date-btn" onclick="setDateRange('today')">Today</button>
+                                <button class="btn btn-ghost btn-sm date-btn" onclick="setDateRange('week')">This Week</button>
+                                <button class="btn btn-secondary btn-sm date-btn" onclick="setDateRange('month')">This Month</button>
+                                <button class="btn btn-ghost btn-sm date-btn" onclick="setDateRange('lastMonth')">Last Month</button>
+                                <button class="btn btn-ghost btn-sm date-btn" onclick="setDateRange('quarter')">This Quarter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon green">💰</div>
+                        </div>
+                        <div class="stat-value" id="statTotalSales">$0.00</div>
+                        <div class="stat-label">Total Sales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon blue">📦</div>
+                        </div>
+                        <div class="stat-value" id="statTotalCOGS">$0.00</div>
+                        <div class="stat-label">Total Cost of Goods Sold</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon purple">📈</div>
+                        </div>
+                        <div class="stat-value" id="statTotalProfit">$0.00</div>
+                        <div class="stat-label">Total Gross Profit</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon yellow">📊</div>
+                        </div>
+                        <div class="stat-value" id="statAvgMargin">0.0%</div>
+                        <div class="stat-label">Average Gross Margin</div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-top: 24px;">
+                    <!-- Trend Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Sales & Profit Trend</h3>
+                            <div style="display: flex; gap: 16px; font-size: 0.8125rem;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 12px; height: 3px; background: var(--primary-500); border-radius: 2px;"></span>
+                                    <span style="color: var(--gray-600);">Sales</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="width: 12px; height: 3px; background: var(--success-500); border-radius: 2px;"></span>
+                                    <span style="color: var(--gray-600);">Gross Profit</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container" id="trendChart">
+                                <svg viewBox="0 0 700 260" style="width: 100%; height: 100%;">
+                                    <text x="350" y="130" text-anchor="middle" fill="#9CA3AF" font-size="14">Loading...</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Breakdown -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Profit by Category</h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Donut Chart -->
+                            <div style="display: flex; justify-content: center; margin-bottom: 24px;" id="categoryChart">
+                                <svg viewBox="0 0 160 160" width="160" height="160">
+                                    <circle cx="80" cy="80" r="60" fill="none" stroke="#E5E7EB" stroke-width="24"/>
+                                    <text x="80" y="80" text-anchor="middle" fill="#9CA3AF" font-size="12">Loading...</text>
+                                </svg>
+                            </div>
+                            <!-- Legend -->
+                            <div style="display: flex; flex-direction: column; gap: 12px;" id="categoryLegend">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profit by Product Table -->
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <h3 class="card-title">Product Profit Details</h3>
+                            <span class="badge badge-info">Sorted by Profit</span>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <select class="form-control form-select" style="width: 140px; height: 36px; font-size: 0.8125rem;" id="seriesFilter" onchange="handleSeriesFilter()">
+                                <option value="">All Series</option>
+                            </select>
+                            <button class="btn btn-ghost btn-sm">
+                                <span>📥</span>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Product Info</th>
+                                    <th>Part Number</th>
+                                    <th>Series</th>
+                                    <th style="text-align: right;">Sales Qty</th>
+                                    <th style="text-align: right;">Total Sales</th>
+                                    <th style="text-align: right;">Total Cost</th>
+                                    <th style="text-align: right;">Gross Profit</th>
+                                    <th style="text-align: right;">Margin</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productTableBody">
+                                <tr>
+                                    <td colspan="9" style="text-align: center; padding: 40px;">Loading profit data...</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: var(--gray-50); font-weight: 600;">
+                                    <td colspan="4" style="padding: 16px;">Total</td>
+                                    <td style="text-align: right; font-family: var(--font-family-mono); padding: 16px;" id="footerTotalQty">0</td>
+                                    <td style="text-align: right; font-family: var(--font-family-mono); padding: 16px;" id="footerTotalSales">$0.00</td>
+                                    <td style="text-align: right; font-family: var(--font-family-mono); color: var(--gray-500); padding: 16px;" id="footerTotalCost">$0.00</td>
+                                    <td style="text-align: right; font-family: var(--font-family-mono); color: var(--success-600); padding: 16px;" id="footerTotalProfit">$0.00</td>
+                                    <td style="text-align: right; padding: 16px;">
+                                        <span class="badge badge-success" id="footerAvgMargin">0.0%</span>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <div class="pagination">
+                            <div class="pagination-info" id="paginationInfo">
+                                Showing 0 records
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calculation Note -->
+                <div class="alert alert-info" style="margin-top: 24px;">
+                    <span class="alert-icon">ℹ️</span>
+                    <div class="alert-content">
+                        <div class="alert-title">Calculation Method</div>
+                        <div class="alert-text">
+                            Gross profit is calculated using FIFO (First In, First Out) cost method: On outbound, the earliest batch inventory is deducted first, and cost is calculated based on the corresponding batch's inbound cost.<br>
+                            Gross Profit = Sales - Cost of Goods Sold | Gross Margin = Gross Profit ÷ Sales × 100%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { db } from '../js/firebase-config.js';
+        import {
+            collection,
+            getDocs,
+            query,
+            where,
+            orderBy
+        } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+        import { initPageAuth, handleLogout } from '../js/page-auth.js';
+
+        let currentUser = null;
+        let allInboundRecords = [];
+        let allOutboundRecords = [];
+        let allProducts = [];
+        let startDate = '';
+        let endDate = '';
+
+        // Color palette for charts
+        const CHART_COLORS = ['#6366F1', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6', '#06B6D4'];
+
+        // Initialize page
+        async function init() {
+            currentUser = await initPageAuth();
+            setDefaultDateRange();
+            await loadAllData();
+        }
+
+        init();
+
+        // Set default date range to current month
+        function setDefaultDateRange() {
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+            startDate = firstDay.toISOString().split('T')[0];
+            endDate = lastDay.toISOString().split('T')[0];
+
+            document.getElementById('startDate').value = startDate;
+            document.getElementById('endDate').value = endDate;
+        }
+
+        // Load all data from Firestore
+        async function loadAllData() {
+            try {
+                // Load confirmed inbound records
+                const inboundRef = collection(db, 'inbound');
+                const inboundQuery = query(inboundRef, where('status', '==', 'confirmed'));
+                const inboundSnapshot = await getDocs(inboundQuery);
+
+                allInboundRecords = [];
+                inboundSnapshot.forEach((doc) => {
+                    allInboundRecords.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Sort by inbound date for FIFO
+                allInboundRecords.sort((a, b) => (a.inboundDate || '').localeCompare(b.inboundDate || ''));
+
+                // Load outbound records
+                const outboundRef = collection(db, 'outbound');
+                const outboundSnapshot = await getDocs(outboundRef);
+
+                allOutboundRecords = [];
+                outboundSnapshot.forEach((doc) => {
+                    allOutboundRecords.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Sort by outbound date
+                allOutboundRecords.sort((a, b) => (a.outboundDate || '').localeCompare(b.outboundDate || ''));
+
+                // Load products for series info
+                const productsRef = collection(db, 'products');
+                const productsSnapshot = await getDocs(productsRef);
+
+                allProducts = [];
+                productsSnapshot.forEach((doc) => {
+                    allProducts.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Calculate and render everything
+                calculateAndRender();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Get product series from part number
+        function getProductSeries(partNumber) {
+            const product = allProducts.find(p => p.partNumber === partNumber);
+            if (product && product.series) {
+                return product.series;
+            }
+            // Fallback: try to extract from specification
+            const outbound = allOutboundRecords.find(o => o.partNumber === partNumber);
+            if (outbound && outbound.specification) {
+                const spec = outbound.specification.toUpperCase();
+                if (spec.includes('PM893')) return 'PM893';
+                if (spec.includes('PM897')) return 'PM897';
+                if (spec.includes('PM963')) return 'PM963';
+                if (spec.includes('PM1733')) return 'PM1733';
+                if (spec.includes('PM1735')) return 'PM1735';
+                if (spec.includes('PM9D3A')) return 'PM9D3a';
+            }
+            return 'Other';
+        }
+
+        // Calculate FIFO cost for outbound records
+        function calculateFIFOCosts() {
+            // Build inventory batches per product (part number)
+            const inventoryBatches = {};
+
+            allInboundRecords.forEach(record => {
+                const key = record.partNumber;
+                if (!inventoryBatches[key]) {
+                    inventoryBatches[key] = [];
+                }
+                inventoryBatches[key].push({
+                    date: record.inboundDate,
+                    quantity: record.quantity,
+                    remainingQty: record.quantity,
+                    unitPrice: record.unitPrice
+                });
+            });
+
+            // Process outbound records in date order to calculate FIFO costs
+            const outboundWithCosts = [];
+
+            allOutboundRecords.forEach(outbound => {
+                const key = outbound.partNumber;
+                const batches = inventoryBatches[key] || [];
+
+                let remainingQty = outbound.quantity;
+                let totalCost = 0;
+
+                // Use FIFO - consume from earliest batches first
+                for (const batch of batches) {
+                    if (remainingQty <= 0) break;
+
+                    const takeQty = Math.min(remainingQty, batch.remainingQty);
+                    if (takeQty > 0) {
+                        totalCost += takeQty * batch.unitPrice;
+                        batch.remainingQty -= takeQty;
+                        remainingQty -= takeQty;
+                    }
+                }
+
+                // If still remaining (insufficient stock), use average cost or last known cost
+                if (remainingQty > 0 && batches.length > 0) {
+                    const lastBatch = batches[batches.length - 1];
+                    totalCost += remainingQty * lastBatch.unitPrice;
+                }
+
+                const actualCostPrice = outbound.quantity > 0 ? totalCost / outbound.quantity : 0;
+
+                outboundWithCosts.push({
+                    ...outbound,
+                    fifoCost: totalCost,
+                    fifoCostPrice: actualCostPrice,
+                    series: getProductSeries(outbound.partNumber)
+                });
+            });
+
+            return outboundWithCosts;
+        }
+
+        // Main calculation and render function
+        function calculateAndRender() {
+            const outboundWithCosts = calculateFIFOCosts();
+
+            // Filter by date range
+            const filteredRecords = outboundWithCosts.filter(record => {
+                return record.outboundDate >= startDate && record.outboundDate <= endDate;
+            });
+
+            // Calculate summary stats
+            let totalSales = 0;
+            let totalCOGS = 0;
+
+            filteredRecords.forEach(record => {
+                const salesAmount = record.quantity * record.sellPrice;
+                totalSales += salesAmount;
+                totalCOGS += record.fifoCost;
+            });
+
+            const totalProfit = totalSales - totalCOGS;
+            const avgMargin = totalSales > 0 ? (totalProfit / totalSales * 100) : 0;
+
+            // Update summary cards
+            updateSummaryStats(totalSales, totalCOGS, totalProfit, avgMargin);
+
+            // Calculate product profit details
+            const productProfits = calculateProductProfits(filteredRecords);
+            renderProductTable(productProfits);
+
+            // Calculate series breakdown
+            const seriesBreakdown = calculateSeriesBreakdown(filteredRecords);
+            renderCategoryChart(seriesBreakdown, avgMargin);
+
+            // Calculate trend data
+            const trendData = calculateTrendData(filteredRecords);
+            renderTrendChart(trendData);
+
+            // Update series filter options
+            updateSeriesFilter(seriesBreakdown);
+        }
+
+        // Update summary stat cards
+        function updateSummaryStats(totalSales, totalCOGS, totalProfit, avgMargin) {
+            document.getElementById('statTotalSales').textContent = '$' + formatNumber(totalSales);
+            document.getElementById('statTotalCOGS').textContent = '$' + formatNumber(totalCOGS);
+            document.getElementById('statTotalProfit').textContent = '$' + formatNumber(totalProfit);
+            document.getElementById('statAvgMargin').textContent = avgMargin.toFixed(1) + '%';
+        }
+
+        // Calculate profit per product
+        function calculateProductProfits(records) {
+            const productMap = {};
+
+            records.forEach(record => {
+                const key = record.partNumber;
+                if (!productMap[key]) {
+                    productMap[key] = {
+                        partNumber: record.partNumber,
+                        specification: record.specification,
+                        series: record.series,
+                        salesQty: 0,
+                        totalSales: 0,
+                        totalCost: 0
+                    };
+                }
+
+                productMap[key].salesQty += record.quantity;
+                productMap[key].totalSales += record.quantity * record.sellPrice;
+                productMap[key].totalCost += record.fifoCost;
+            });
+
+            // Calculate profit and margin, convert to array
+            const products = Object.values(productMap).map(p => ({
+                ...p,
+                grossProfit: p.totalSales - p.totalCost,
+                margin: p.totalSales > 0 ? ((p.totalSales - p.totalCost) / p.totalSales * 100) : 0
+            }));
+
+            // Sort by gross profit descending
+            products.sort((a, b) => b.grossProfit - a.grossProfit);
+
+            return products;
+        }
+
+        // Calculate series breakdown
+        function calculateSeriesBreakdown(records) {
+            const seriesMap = {};
+            let totalProfit = 0;
+
+            records.forEach(record => {
+                const series = record.series || 'Other';
+                if (!seriesMap[series]) {
+                    seriesMap[series] = {
+                        series: series,
+                        totalSales: 0,
+                        totalCost: 0,
+                        profit: 0
+                    };
+                }
+
+                const salesAmount = record.quantity * record.sellPrice;
+                seriesMap[series].totalSales += salesAmount;
+                seriesMap[series].totalCost += record.fifoCost;
+            });
+
+            // Calculate profits and total
+            Object.values(seriesMap).forEach(s => {
+                s.profit = s.totalSales - s.totalCost;
+                totalProfit += s.profit;
+            });
+
+            // Calculate percentages
+            const seriesArray = Object.values(seriesMap).map(s => ({
+                ...s,
+                percentage: totalProfit > 0 ? (s.profit / totalProfit * 100) : 0
+            }));
+
+            // Sort by profit descending
+            seriesArray.sort((a, b) => b.profit - a.profit);
+
+            return seriesArray;
+        }
+
+        // Calculate trend data (daily/weekly aggregation)
+        function calculateTrendData(records) {
+            const dailyMap = {};
+
+            records.forEach(record => {
+                const date = record.outboundDate;
+                if (!dailyMap[date]) {
+                    dailyMap[date] = {
+                        date: date,
+                        sales: 0,
+                        profit: 0
+                    };
+                }
+
+                const salesAmount = record.quantity * record.sellPrice;
+                dailyMap[date].sales += salesAmount;
+                dailyMap[date].profit += salesAmount - record.fifoCost;
+            });
+
+            // Convert to array and sort by date
+            const dailyData = Object.values(dailyMap);
+            dailyData.sort((a, b) => a.date.localeCompare(b.date));
+
+            return dailyData;
+        }
+
+        // Render product profit table
+        function renderProductTable(products) {
+            const tbody = document.getElementById('productTableBody');
+            const selectedSeries = document.getElementById('seriesFilter').value;
+
+            // Filter by series if selected
+            let filteredProducts = products;
+            if (selectedSeries) {
+                filteredProducts = products.filter(p => p.series.toLowerCase() === selectedSeries.toLowerCase());
+            }
+
+            if (filteredProducts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--gray-500);">No profit data for selected period</td></tr>';
+                updateTableFooter(0, 0, 0, 0, 0);
+                return;
+            }
+
+            tbody.innerHTML = filteredProducts.map((product, index) => {
+                const rank = index + 1;
+                let rankBadge = '';
+
+                if (rank === 1) {
+                    rankBadge = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: linear-gradient(135deg, #FFD700, #FFA500); color: white; border-radius: 50%; font-size: 0.75rem; font-weight: 600;">1</span>`;
+                } else if (rank === 2) {
+                    rankBadge = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: linear-gradient(135deg, #C0C0C0, #A0A0A0); color: white; border-radius: 50%; font-size: 0.75rem; font-weight: 600;">2</span>`;
+                } else if (rank === 3) {
+                    rankBadge = `<span style="display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: linear-gradient(135deg, #CD7F32, #A0522D); color: white; border-radius: 50%; font-size: 0.75rem; font-weight: 600;">3</span>`;
+                } else {
+                    rankBadge = `<span style="color: var(--gray-500); font-weight: 500;">${rank}</span>`;
+                }
+
+                const marginClass = product.margin >= 0 ? 'badge-success' : 'badge-error';
+                const profitColor = product.grossProfit >= 0 ? 'var(--success-600)' : 'var(--error-600)';
+
+                return `
+                    <tr>
+                        <td>${rankBadge}</td>
+                        <td>
+                            <div style="font-weight: 500;">${escapeHtml(product.specification)}</div>
+                        </td>
+                        <td><span class="sku-display">${escapeHtml(product.partNumber)}</span></td>
+                        <td>${escapeHtml(product.series)}</td>
+                        <td style="text-align: right; font-family: var(--font-family-mono);">${product.salesQty.toLocaleString()}</td>
+                        <td style="text-align: right; font-family: var(--font-family-mono);">$${formatNumber(product.totalSales)}</td>
+                        <td style="text-align: right; font-family: var(--font-family-mono); color: var(--gray-500);">$${formatNumber(product.totalCost)}</td>
+                        <td style="text-align: right; font-family: var(--font-family-mono); font-weight: 600; color: ${profitColor};">$${formatNumber(product.grossProfit)}</td>
+                        <td style="text-align: right;">
+                            <span class="badge ${marginClass}">${product.margin.toFixed(1)}%</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Update footer totals
+            const totalQty = filteredProducts.reduce((sum, p) => sum + p.salesQty, 0);
+            const totalSales = filteredProducts.reduce((sum, p) => sum + p.totalSales, 0);
+            const totalCost = filteredProducts.reduce((sum, p) => sum + p.totalCost, 0);
+            const totalProfit = totalSales - totalCost;
+            const avgMargin = totalSales > 0 ? (totalProfit / totalSales * 100) : 0;
+
+            updateTableFooter(filteredProducts.length, totalQty, totalSales, totalCost, avgMargin);
+        }
+
+        // Update table footer
+        function updateTableFooter(count, totalQty, totalSales, totalCost, avgMargin) {
+            const totalProfit = totalSales - totalCost;
+            document.getElementById('footerTotalQty').textContent = totalQty.toLocaleString();
+            document.getElementById('footerTotalSales').textContent = '$' + formatNumber(totalSales);
+            document.getElementById('footerTotalCost').textContent = '$' + formatNumber(totalCost);
+            document.getElementById('footerTotalProfit').textContent = '$' + formatNumber(totalProfit);
+            document.getElementById('footerAvgMargin').textContent = avgMargin.toFixed(1) + '%';
+            document.getElementById('paginationInfo').textContent = `Showing 1-${count} of ${count} records`;
+        }
+
+        // Render category/series donut chart
+        function renderCategoryChart(seriesData, avgMargin) {
+            const chartContainer = document.getElementById('categoryChart');
+            const legendContainer = document.getElementById('categoryLegend');
+
+            if (seriesData.length === 0) {
+                chartContainer.innerHTML = `
+                    <svg viewBox="0 0 160 160" width="160" height="160">
+                        <circle cx="80" cy="80" r="60" fill="none" stroke="#E5E7EB" stroke-width="24"/>
+                        <text x="80" y="75" text-anchor="middle" fill="#9CA3AF" font-size="14">No Data</text>
+                        <text x="80" y="95" text-anchor="middle" fill="#9CA3AF" font-size="11">Select a period</text>
+                    </svg>
+                `;
+                legendContainer.innerHTML = '';
+                return;
+            }
+
+            // Calculate stroke dasharray for donut chart
+            const circumference = 2 * Math.PI * 60; // 376.99
+            let currentOffset = 0;
+
+            let circlesSvg = `<circle cx="80" cy="80" r="60" fill="none" stroke="#E5E7EB" stroke-width="24"/>`;
+
+            seriesData.forEach((series, index) => {
+                const dashLength = (series.percentage / 100) * circumference;
+                const color = CHART_COLORS[index % CHART_COLORS.length];
+
+                circlesSvg += `
+                    <circle cx="80" cy="80" r="60" fill="none" stroke="${color}" stroke-width="24"
+                            stroke-dasharray="${dashLength} ${circumference - dashLength}"
+                            stroke-dashoffset="${-currentOffset}"
+                            transform="rotate(-90 80 80)"/>
+                `;
+
+                currentOffset += dashLength;
+            });
+
+            chartContainer.innerHTML = `
+                <svg viewBox="0 0 160 160" width="160" height="160">
+                    ${circlesSvg}
+                    <text x="80" y="75" text-anchor="middle" fill="#1F2937" font-size="18" font-weight="600">${avgMargin.toFixed(1)}%</text>
+                    <text x="80" y="95" text-anchor="middle" fill="#6B7280" font-size="11">Avg. Margin</text>
+                </svg>
+            `;
+
+            // Render legend
+            legendContainer.innerHTML = seriesData.map((series, index) => {
+                const color = CHART_COLORS[index % CHART_COLORS.length];
+                return `
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="width: 12px; height: 12px; background: ${color}; border-radius: 3px;"></span>
+                            <span style="font-size: 0.875rem;">${escapeHtml(series.series)}</span>
+                        </div>
+                        <span style="font-size: 0.875rem; font-weight: 600;">${series.percentage.toFixed(1)}%</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render trend chart
+        function renderTrendChart(trendData) {
+            const chartContainer = document.getElementById('trendChart');
+
+            if (trendData.length === 0) {
+                chartContainer.innerHTML = `
+                    <svg viewBox="0 0 700 260" style="width: 100%; height: 100%;">
+                        <text x="350" y="130" text-anchor="middle" fill="#9CA3AF" font-size="14">No data for selected period</text>
+                    </svg>
+                `;
+                return;
+            }
+
+            // Find max values for scaling
+            const maxSales = Math.max(...trendData.map(d => d.sales), 1);
+            const maxProfit = Math.max(...trendData.map(d => d.profit), 1);
+            const maxValue = Math.max(maxSales, maxProfit * 3); // Scale profit to be visible
+
+            // Chart dimensions
+            const chartLeft = 50;
+            const chartRight = 680;
+            const chartTop = 20;
+            const chartBottom = 220;
+            const chartWidth = chartRight - chartLeft;
+            const chartHeight = chartBottom - chartTop;
+
+            // Generate grid lines
+            const gridLines = [];
+            for (let i = 0; i <= 4; i++) {
+                const y = chartTop + (chartHeight * i / 4);
+                const value = maxValue * (1 - i / 4);
+                gridLines.push(`<line x1="${chartLeft}" y1="${y}" x2="${chartRight}" y2="${y}" stroke="#E5E7EB" stroke-width="1"/>`);
+                gridLines.push(`<text x="40" y="${y + 5}" fill="#9CA3AF" font-size="10" text-anchor="end">$${formatCompact(value)}</text>`);
+            }
+
+            // Generate data points
+            const pointSpacing = trendData.length > 1 ? chartWidth / (trendData.length - 1) : 0;
+
+            let salesPath = '';
+            let profitPath = '';
+            let salesPoints = '';
+            let profitPoints = '';
+            let xLabels = '';
+
+            trendData.forEach((point, index) => {
+                const x = chartLeft + (index * pointSpacing);
+                const salesY = chartBottom - (point.sales / maxValue * chartHeight);
+                const profitY = chartBottom - (point.profit / maxValue * chartHeight);
+
+                if (index === 0) {
+                    salesPath = `M${x},${salesY}`;
+                    profitPath = `M${x},${profitY}`;
+                } else {
+                    salesPath += ` L${x},${salesY}`;
+                    profitPath += ` L${x},${profitY}`;
+                }
+
+                // Add points for key positions
+                if (index === 0 || index === trendData.length - 1 || index % Math.ceil(trendData.length / 5) === 0) {
+                    salesPoints += `<circle cx="${x}" cy="${salesY}" r="4" fill="#6366F1"/>`;
+                    profitPoints += `<circle cx="${x}" cy="${profitY}" r="4" fill="#10B981"/>`;
+
+                    // Date label
+                    const dateLabel = point.date.substring(5); // MM-DD
+                    xLabels += `<text x="${x}" y="245" fill="#9CA3AF" font-size="10" text-anchor="middle">${dateLabel}</text>`;
+                }
+            });
+
+            // Highlight last point
+            if (trendData.length > 0) {
+                const lastIndex = trendData.length - 1;
+                const lastX = chartLeft + (lastIndex * pointSpacing);
+                const lastSalesY = chartBottom - (trendData[lastIndex].sales / maxValue * chartHeight);
+                const lastProfitY = chartBottom - (trendData[lastIndex].profit / maxValue * chartHeight);
+
+                salesPoints += `<circle cx="${lastX}" cy="${lastSalesY}" r="5" fill="#6366F1" stroke="white" stroke-width="2"/>`;
+                profitPoints += `<circle cx="${lastX}" cy="${lastProfitY}" r="5" fill="#10B981" stroke="white" stroke-width="2"/>`;
+            }
+
+            chartContainer.innerHTML = `
+                <svg viewBox="0 0 700 260" style="width: 100%; height: 100%;">
+                    ${gridLines.join('')}
+                    <path d="${salesPath}" fill="none" stroke="#6366F1" stroke-width="2.5"/>
+                    <path d="${profitPath}" fill="none" stroke="#10B981" stroke-width="2.5"/>
+                    ${salesPoints}
+                    ${profitPoints}
+                    ${xLabels}
+                </svg>
+            `;
+        }
+
+        // Update series filter options
+        function updateSeriesFilter(seriesData) {
+            const select = document.getElementById('seriesFilter');
+            const currentValue = select.value;
+
+            select.innerHTML = '<option value="">All Series</option>';
+            seriesData.forEach(series => {
+                const option = document.createElement('option');
+                option.value = series.series.toLowerCase();
+                option.textContent = series.series;
+                select.appendChild(option);
+            });
+
+            // Restore selection if still valid
+            if (currentValue) {
+                select.value = currentValue;
+            }
+        }
+
+        // Date range quick filters
+        window.setDateRange = function(range) {
+            const now = new Date();
+            let start, end;
+
+            switch (range) {
+                case 'today':
+                    start = end = now;
+                    break;
+                case 'week':
+                    const dayOfWeek = now.getDay();
+                    start = new Date(now);
+                    start.setDate(now.getDate() - dayOfWeek);
+                    end = now;
+                    break;
+                case 'month':
+                    start = new Date(now.getFullYear(), now.getMonth(), 1);
+                    end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    break;
+                case 'lastMonth':
+                    start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    end = new Date(now.getFullYear(), now.getMonth(), 0);
+                    break;
+                case 'quarter':
+                    const quarterMonth = Math.floor(now.getMonth() / 3) * 3;
+                    start = new Date(now.getFullYear(), quarterMonth, 1);
+                    end = new Date(now.getFullYear(), quarterMonth + 3, 0);
+                    break;
+                default:
+                    return;
+            }
+
+            startDate = start.toISOString().split('T')[0];
+            endDate = end.toISOString().split('T')[0];
+
+            document.getElementById('startDate').value = startDate;
+            document.getElementById('endDate').value = endDate;
+
+            // Update button states
+            document.querySelectorAll('.date-btn').forEach(btn => {
+                btn.classList.remove('btn-secondary');
+                btn.classList.add('btn-ghost');
+            });
+            event.target.classList.remove('btn-ghost');
+            event.target.classList.add('btn-secondary');
+
+            calculateAndRender();
+        };
+
+        // Search button handler
+        window.handleSearch = function() {
+            startDate = document.getElementById('startDate').value;
+            endDate = document.getElementById('endDate').value;
+
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+
+            if (startDate > endDate) {
+                alert('Start date cannot be after end date');
+                return;
+            }
+
+            calculateAndRender();
+        };
+
+        // Series filter change handler
+        window.handleSeriesFilter = function() {
+            calculateAndRender();
+        };
+
+        // Format number with commas and 2 decimal places
+        function formatNumber(num) {
+            return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Format compact number (e.g., 100k)
+        function formatCompact(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(0) + 'k';
+            return num.toFixed(0);
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Make logout available globally
+        window.handleLogout = handleLogout;
+    </script>
+</body>
+</html>

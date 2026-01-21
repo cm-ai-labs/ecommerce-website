@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Inventory Management System</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon">📦</div>
+                    <div>
+                        <div class="sidebar-logo-text">Inventory System</div>
+                        <div class="sidebar-logo-subtitle">Inventory Management</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="../pages/index.html" class="nav-item active">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Core Business</div>
+                    <a href="../pages/products.html" class="nav-item">
+                        <span class="nav-item-icon">🏷️</span>
+                        <span>Products</span>
+                        <span class="nav-item-badge" id="products-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/inbound.html" class="nav-item">
+                        <span class="nav-item-icon">📥</span>
+                        <span>Inbound</span>
+                        <span class="nav-item-badge" id="inbound-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/outbound.html" class="nav-item">
+                        <span class="nav-item-icon">📤</span>
+                        <span>Outbound</span>
+                        <span class="nav-item-badge" id="outbound-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/inventory.html" class="nav-item">
+                        <span class="nav-item-icon">📋</span>
+                        <span>Inventory</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports & Analytics</div>
+                    <a href="../pages/profit.html" class="nav-item">
+                        <span class="nav-item-icon">📈</span>
+                        <span>Gross Profit</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">-</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Loading...</div>
+                        <div class="user-role" id="userRole">-</div>
+                    </div>
+                    <button id="logoutBtn" style="background: none; border: none; cursor: pointer; color: var(--gray-400);" title="Logout">🚪</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1 class="header-title">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="header-search">
+                        <span class="header-search-icon">🔍</span>
+                        <input type="text" placeholder="Search products, SKU...">
+                    </div>
+                    <button class="header-icon-btn">
+                        <span>🔔</span>
+                        <span class="badge"></span>
+                    </button>
+                    <button class="header-icon-btn">
+                        <span>❓</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Welcome Message -->
+                <div class="alert alert-info" style="margin-bottom: 24px;">
+                    <span class="alert-icon">👋</span>
+                    <div class="alert-content">
+                        <div class="alert-title" id="welcomeTitle">Good morning</div>
+                        <div class="alert-text" id="welcomeText">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon blue">📦</div>
+                        </div>
+                        <div class="stat-value" id="statStock">-</div>
+                        <div class="stat-label">Current Stock Quantity</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon green">💰</div>
+                        </div>
+                        <div class="stat-value" id="statInventoryCost">-</div>
+                        <div class="stat-label">Inventory Cost Balance</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon yellow">📈</div>
+                        </div>
+                        <div class="stat-value" id="statSales">-</div>
+                        <div class="stat-label">Last 30 Days Sales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon purple">💹</div>
+                        </div>
+                        <div class="stat-value" id="statProfit">-</div>
+                        <div class="stat-label">Last 30 Days Gross Profit</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <h3 style="margin-bottom: 16px; font-size: 1rem;">Quick Actions</h3>
+                <div class="quick-actions">
+                    <a href="../pages/inbound.html" class="quick-action-card">
+                        <div class="quick-action-icon inbound">📥</div>
+                        <div class="quick-action-content">
+                            <h4>New Inbound</h4>
+                            <p>Record SSD inbound</p>
+                        </div>
+                    </a>
+                    <a href="../pages/outbound.html" class="quick-action-card">
+                        <div class="quick-action-icon outbound">📤</div>
+                        <div class="quick-action-content">
+                            <h4>New Outbound</h4>
+                            <p>Record SSD outbound</p>
+                        </div>
+                    </a>
+                    <a href="../pages/products.html" class="quick-action-card">
+                        <div class="quick-action-icon product">🏷️</div>
+                        <div class="quick-action-content">
+                            <h4>Products</h4>
+                            <p>Manage SSD products</p>
+                        </div>
+                    </a>
+                    <a href="../pages/profit.html" class="quick-action-card">
+                        <div class="quick-action-icon report">📊</div>
+                        <div class="quick-action-content">
+                            <h4>View Reports</h4>
+                            <p>Profit & sales analysis</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Two Column Layout -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+                    <!-- Recent Activities -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Activities</h3>
+                        </div>
+                        <div class="card-body" style="padding: 0;">
+                            <div class="activity-list" style="padding: 0 24px;" id="activityList">
+                                <div style="padding: 20px; text-align: center; color: var(--gray-500);">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Low Stock Alert -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Stock Alerts</h3>
+                            <span class="badge badge-warning" id="alertCount">0 items</span>
+                        </div>
+                        <div class="card-body" style="padding: 0;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Specification</th>
+                                        <th>Part Number</th>
+                                        <th style="text-align: right;">Stock</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="alertTableBody">
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; padding: 20px; color: var(--gray-500);">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <a href="../pages/inventory.html" class="btn btn-secondary btn-sm">View Full Inventory →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Chart Area -->
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">Last 30 Days Sales Trend</h3>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary btn-sm">Daily</button>
+                            <button class="btn btn-ghost btn-sm">Weekly</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <!-- Chart Placeholder -->
+                            <svg viewBox="0 0 800 280" style="width: 100%; height: 100%;">
+                                <!-- Grid Lines -->
+                                <defs>
+                                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#6366F1;stop-opacity:0.3" />
+                                        <stop offset="100%" style="stop-color:#6366F1;stop-opacity:0" />
+                                    </linearGradient>
+                                </defs>
+
+                                <!-- Y-axis labels -->
+                                <text x="30" y="30" fill="#9CA3AF" font-size="11">$15k</text>
+                                <text x="30" y="80" fill="#9CA3AF" font-size="11">$12k</text>
+                                <text x="30" y="130" fill="#9CA3AF" font-size="11">$9k</text>
+                                <text x="30" y="180" fill="#9CA3AF" font-size="11">$6k</text>
+                                <text x="30" y="230" fill="#9CA3AF" font-size="11">$3k</text>
+
+                                <!-- Grid lines -->
+                                <line x1="60" y1="25" x2="780" y2="25" stroke="#E5E7EB" stroke-width="1"/>
+                                <line x1="60" y1="75" x2="780" y2="75" stroke="#E5E7EB" stroke-width="1"/>
+                                <line x1="60" y1="125" x2="780" y2="125" stroke="#E5E7EB" stroke-width="1"/>
+                                <line x1="60" y1="175" x2="780" y2="175" stroke="#E5E7EB" stroke-width="1"/>
+                                <line x1="60" y1="225" x2="780" y2="225" stroke="#E5E7EB" stroke-width="1"/>
+
+                                <!-- Area fill -->
+                                <path d="M60,180 L100,165 L140,175 L180,140 L220,155 L260,120 L300,135 L340,95 L380,110 L420,85 L460,100 L500,75 L540,90 L580,65 L620,80 L660,55 L700,70 L740,45 L780,60 L780,225 L60,225 Z" fill="url(#chartGradient)"/>
+
+                                <!-- Line -->
+                                <path d="M60,180 L100,165 L140,175 L180,140 L220,155 L260,120 L300,135 L340,95 L380,110 L420,85 L460,100 L500,75 L540,90 L580,65 L620,80 L660,55 L700,70 L740,45 L780,60" fill="none" stroke="#6366F1" stroke-width="2.5"/>
+
+                                <!-- Data points -->
+                                <circle cx="60" cy="180" r="4" fill="#6366F1"/>
+                                <circle cx="180" cy="140" r="4" fill="#6366F1"/>
+                                <circle cx="340" cy="95" r="4" fill="#6366F1"/>
+                                <circle cx="500" cy="75" r="4" fill="#6366F1"/>
+                                <circle cx="660" cy="55" r="4" fill="#6366F1"/>
+                                <circle cx="780" cy="60" r="5" fill="#6366F1" stroke="white" stroke-width="2"/>
+
+                                <!-- X-axis labels -->
+                                <text x="60" y="255" fill="#9CA3AF" font-size="11">02/14</text>
+                                <text x="180" y="255" fill="#9CA3AF" font-size="11">02/21</text>
+                                <text x="340" y="255" fill="#9CA3AF" font-size="11">02/28</text>
+                                <text x="500" y="255" fill="#9CA3AF" font-size="11">03/07</text>
+                                <text x="660" y="255" fill="#9CA3AF" font-size="11">03/14</text>
+                                <text x="760" y="255" fill="#9CA3AF" font-size="11">Today</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { db } from '../js/firebase-config.js';
+        import {
+            collection,
+            getDocs,
+            query,
+            where,
+            orderBy,
+            limit
+        } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+        import { initPageAuth, handleLogout } from '../js/page-auth.js';
+
+        let currentUser = null;
+
+        // Initialize page
+        async function init() {
+            currentUser = await initPageAuth();
+            updateWelcomeMessage();
+            await loadDashboardData();
+        }
+
+        init();
+
+        // Update welcome message
+        function updateWelcomeMessage() {
+            const hour = new Date().getHours();
+            let greeting = 'Good morning';
+            if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+            else if (hour >= 17) greeting = 'Good evening';
+
+            const displayName = currentUser?.displayName || 'User';
+            document.getElementById('welcomeTitle').textContent = `${greeting}, ${displayName}`;
+        }
+
+        // Load all dashboard data
+        async function loadDashboardData() {
+            try {
+                // Load all data in parallel
+                const [inboundData, outboundData] = await Promise.all([
+                    loadInboundData(),
+                    loadOutboundData()
+                ]);
+
+                // Calculate and display stats
+                calculateStats(inboundData, outboundData);
+
+                // Load recent activities
+                loadRecentActivities(inboundData, outboundData);
+
+                // Load stock alerts
+                loadStockAlerts(inboundData, outboundData);
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Load inbound data
+        async function loadInboundData() {
+            const inboundRef = collection(db, 'inbound');
+            const querySnapshot = await getDocs(inboundRef);
+
+            const records = [];
+            querySnapshot.forEach((doc) => {
+                records.push({
+                    id: doc.id,
+                    type: 'inbound',
+                    ...doc.data()
+                });
+            });
+            return records;
+        }
+
+        // Load outbound data
+        async function loadOutboundData() {
+            const outboundRef = collection(db, 'outbound');
+            const querySnapshot = await getDocs(outboundRef);
+
+            const records = [];
+            querySnapshot.forEach((doc) => {
+                records.push({
+                    id: doc.id,
+                    type: 'outbound',
+                    ...doc.data()
+                });
+            });
+            return records;
+        }
+
+        // Calculate and display stats
+        function calculateStats(inboundData, outboundData) {
+            // Filter confirmed inbound
+            const confirmedInbound = inboundData.filter(r => r.status === 'confirmed');
+            const pendingInbound = inboundData.filter(r => r.status === 'pending');
+
+            // Calculate stock by part number
+            const stockMap = {};
+            confirmedInbound.forEach(r => {
+                if (!stockMap[r.partNumber]) {
+                    stockMap[r.partNumber] = { inbound: 0, outbound: 0, cost: 0 };
+                }
+                stockMap[r.partNumber].inbound += r.quantity;
+                stockMap[r.partNumber].cost += r.quantity * r.unitPrice;
+            });
+
+            outboundData.forEach(r => {
+                if (stockMap[r.partNumber]) {
+                    stockMap[r.partNumber].outbound += r.quantity;
+                }
+            });
+
+            // Calculate totals
+            let totalStock = 0;
+            let totalInventoryCost = 0;
+
+            Object.values(stockMap).forEach(item => {
+                const available = item.inbound - item.outbound;
+                if (available > 0) {
+                    totalStock += available;
+                    const avgCost = item.inbound > 0 ? item.cost / item.inbound : 0;
+                    totalInventoryCost += available * avgCost;
+                }
+            });
+
+            // Calculate last 30 days sales and profit
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
+
+            let last30DaysSales = 0;
+            let last30DaysProfit = 0;
+
+            outboundData.forEach(r => {
+                if (r.outboundDate >= thirtyDaysAgoStr) {
+                    const sales = r.quantity * r.sellPrice;
+                    const cost = r.quantity * r.costPrice;
+                    last30DaysSales += sales;
+                    last30DaysProfit += (sales - cost);
+                }
+            });
+
+            // Update UI
+            document.getElementById('statStock').textContent = totalStock.toLocaleString();
+            document.getElementById('statInventoryCost').textContent = '$' + totalInventoryCost.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+            document.getElementById('statSales').textContent = '$' + last30DaysSales.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+            document.getElementById('statProfit').textContent = '$' + last30DaysProfit.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+
+            // Update welcome text
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const pendingCount = pendingInbound.length;
+            const pendingText = pendingCount > 0
+                ? `You have ${pendingCount} pending inbound record${pendingCount > 1 ? 's' : ''} to confirm.`
+                : 'All inbound records are confirmed.';
+            document.getElementById('welcomeText').textContent = `Today is ${dateStr}. System is running normally. ${pendingText}`;
+
+            // Update sidebar badge
+            const pendingBadge = document.querySelector('.nav-item-badge');
+            if (pendingBadge) {
+                if (pendingCount > 0) {
+                    pendingBadge.textContent = pendingCount;
+                    pendingBadge.style.display = 'inline';
+                } else {
+                    pendingBadge.style.display = 'none';
+                }
+            }
+        }
+
+        // Load and display recent activities
+        function loadRecentActivities(inboundData, outboundData) {
+            // Combine and sort by date
+            const allActivities = [];
+
+            inboundData.forEach(r => {
+                allActivities.push({
+                    type: 'inbound',
+                    title: `Inbound: ${r.specification} × ${r.quantity} pcs`,
+                    date: r.inboundDate,
+                    origin: r.origin,
+                    status: r.status,
+                    createdAt: r.createdAt
+                });
+            });
+
+            outboundData.forEach(r => {
+                allActivities.push({
+                    type: 'outbound',
+                    title: `Outbound: ${r.specification} × ${r.quantity} pcs`,
+                    date: r.outboundDate,
+                    createdAt: r.createdAt
+                });
+            });
+
+            // Sort by date descending
+            allActivities.sort((a, b) => {
+                const dateA = a.createdAt?.toDate?.() || new Date(a.date);
+                const dateB = b.createdAt?.toDate?.() || new Date(b.date);
+                return dateB - dateA;
+            });
+
+            // Take top 5
+            const recentActivities = allActivities.slice(0, 5);
+
+            // Render
+            const activityList = document.getElementById('activityList');
+
+            if (recentActivities.length === 0) {
+                activityList.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--gray-500);">No recent activities</div>';
+                return;
+            }
+
+            activityList.innerHTML = recentActivities.map(activity => {
+                const icon = activity.type === 'inbound' ? '📥' : '📤';
+                const iconClass = activity.type;
+                const statusBadge = activity.status === 'pending' ? ' <span class="badge badge-warning" style="font-size: 0.7rem;">Pending</span>' : '';
+
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon ${iconClass}">${icon}</div>
+                        <div class="activity-content">
+                            <div class="activity-title">${escapeHtml(activity.title)}${statusBadge}</div>
+                            <div class="activity-meta">${activity.date}${activity.origin ? ' · ' + activity.origin : ''}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Load and display stock alerts
+        function loadStockAlerts(inboundData, outboundData) {
+            // Calculate stock by part number
+            const stockMap = {};
+            const confirmedInbound = inboundData.filter(r => r.status === 'confirmed');
+
+            confirmedInbound.forEach(r => {
+                if (!stockMap[r.partNumber]) {
+                    stockMap[r.partNumber] = {
+                        specification: r.specification,
+                        partNumber: r.partNumber,
+                        inbound: 0,
+                        outbound: 0
+                    };
+                }
+                stockMap[r.partNumber].inbound += r.quantity;
+            });
+
+            outboundData.forEach(r => {
+                if (stockMap[r.partNumber]) {
+                    stockMap[r.partNumber].outbound += r.quantity;
+                }
+            });
+
+            // Find low stock items (stock < 100)
+            const lowStockItems = Object.values(stockMap)
+                .map(item => ({
+                    ...item,
+                    available: item.inbound - item.outbound
+                }))
+                .filter(item => item.available > 0 && item.available < 100)
+                .sort((a, b) => a.available - b.available)
+                .slice(0, 5);
+
+            // Update count badge
+            document.getElementById('alertCount').textContent = `${lowStockItems.length} items`;
+
+            // Render table
+            const tbody = document.getElementById('alertTableBody');
+
+            if (lowStockItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px; color: var(--gray-500);">No low stock alerts</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = lowStockItems.map(item => {
+                const isCritical = item.available < 50;
+                const statusBadge = isCritical
+                    ? '<span class="badge badge-error">Critical</span>'
+                    : '<span class="badge badge-warning">Low</span>';
+                const amountClass = isCritical ? 'amount negative' : 'amount';
+
+                return `
+                    <tr>
+                        <td>${escapeHtml(item.specification)}</td>
+                        <td><span class="sku-display">${escapeHtml(item.partNumber)}</span></td>
+                        <td style="text-align: right;" class="${amountClass}">${item.available}</td>
+                        <td>${statusBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Utility function
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Make logout available globally
+        window.handleLogout = handleLogout;
+    </script>
+</body>
+</html>

@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbound - Inventory Management System</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon">📦</div>
+                    <div>
+                        <div class="sidebar-logo-text">Inventory System</div>
+                        <div class="sidebar-logo-subtitle">Inventory Management</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="../pages/index.html" class="nav-item">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Core Business</div>
+                    <a href="../pages/products.html" class="nav-item">
+                        <span class="nav-item-icon">🏷️</span>
+                        <span>Products</span>
+                        <span class="nav-item-badge" id="products-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/inbound.html" class="nav-item active">
+                        <span class="nav-item-icon">📥</span>
+                        <span>Inbound</span>
+                        <span class="nav-item-badge" id="inbound-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/outbound.html" class="nav-item">
+                        <span class="nav-item-icon">📤</span>
+                        <span>Outbound</span>
+                        <span class="nav-item-badge" id="outbound-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/inventory.html" class="nav-item">
+                        <span class="nav-item-icon">📋</span>
+                        <span>Inventory</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports & Analytics</div>
+                    <a href="../pages/profit.html" class="nav-item">
+                        <span class="nav-item-icon">📈</span>
+                        <span>Gross Profit</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">-</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Loading...</div>
+                        <div class="user-role" id="userRole">-</div>
+                    </div>
+                    <button id="logoutBtn" style="background: none; border: none; cursor: pointer; color: var(--gray-400);" title="Logout">🚪</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <div class="breadcrumb">
+                        <a href="../pages/index.html">Home</a>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Inbound</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="header-search">
+                        <span class="header-search-icon">🔍</span>
+                        <input type="text" placeholder="Search products, SKU..." id="searchInput" oninput="handleSearch()">
+                    </div>
+                    <button class="header-icon-btn">
+                        <span>🔔</span>
+                        <span class="badge"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Inbound Management</h1>
+                        <p class="page-subtitle">Record product inbound information, automatically generate inventory batches</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal()">
+                        <span>➕</span>
+                        New Inbound
+                    </button>
+                </div>
+
+                <!-- Stats Summary -->
+                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon green">📥</div>
+                        </div>
+                        <div class="stat-value" id="statBatches">0</div>
+                        <div class="stat-label">This Month Inbound Batches</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon blue">📦</div>
+                        </div>
+                        <div class="stat-value" id="statQuantity">0</div>
+                        <div class="stat-label">This Month Inbound Quantity</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon purple">💰</div>
+                        </div>
+                        <div class="stat-value" id="statCost">$0</div>
+                        <div class="stat-label">This Month Inbound Cost</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" data-filter="all" onclick="setFilter('all', this)">All Records</button>
+                    <button class="tab" data-filter="pending" onclick="setFilter('pending', this)">Pending <span class="badge badge-warning" style="margin-left: 6px;" id="pendingCount">0</span></button>
+                    <button class="tab" data-filter="confirmed" onclick="setFilter('confirmed', this)">Confirmed</button>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="card">
+                    <div class="card-body" style="padding: 16px 24px;">
+                        <div class="filter-bar" style="margin-bottom: 0;">
+                            <div class="search-input">
+                                <span class="icon">🔍</span>
+                                <input type="text" placeholder="Search product or part number..." class="form-control" style="padding-left: 40px;" id="tableSearch" oninput="handleSearch()">
+                            </div>
+                            <select class="form-control form-select filter-select" id="filterWarehouse" onchange="applyFilters()">
+                                <option value="">All Warehouses</option>
+                                <option value="In Stock">In Stock</option>
+                                <option value="In Transit">In Transit</option>
+                            </select>
+                            <select class="form-control form-select filter-select" id="filterCondition" onchange="applyFilters()">
+                                <option value="">All Conditions</option>
+                                <option value="For Sale">For Sale</option>
+                                <option value="CAO Reserved">CAO Reserved</option>
+                            </select>
+                            <button class="btn btn-secondary" onclick="resetFilters()">
+                                <span>🔄</span>
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inbound Records Table -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <h3 class="card-title">Inbound Records</h3>
+                            <span class="badge badge-info" id="totalRecords">0 records</span>
+                        </div>
+                        <button class="btn btn-ghost btn-sm" onclick="loadInboundRecords()">
+                            <span>🔄</span>
+                            Refresh
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Inbound Date</th>
+                                    <th>Specification</th>
+                                    <th>Part Number</th>
+                                    <th style="text-align: right;">Qty</th>
+                                    <th style="text-align: right;">Unit Price</th>
+                                    <th style="text-align: right;">Amount</th>
+                                    <th>Condition</th>
+                                    <th>Warehouse</th>
+                                    <th>DC/Origin</th>
+                                    <th style="width: 100px;">Status</th>
+                                    <th style="width: 120px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inboundTableBody">
+                                <tr>
+                                    <td colspan="11" style="text-align: center; padding: 40px;">Loading records...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <div class="pagination">
+                            <div class="pagination-info" id="paginationInfo">
+                                Showing 0 records
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- New Inbound Modal -->
+    <div class="modal-overlay" id="inboundModal" style="display: none;">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">New Inbound Record</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- Error/Success Messages -->
+                <div id="modalError" class="alert alert-error" style="display: none; margin-bottom: 16px;">
+                    <span class="alert-icon">!</span>
+                    <div class="alert-content">
+                        <div class="alert-text" id="modalErrorText"></div>
+                    </div>
+                </div>
+
+                <form id="inboundForm" onsubmit="handleSubmitInbound(event)">
+                    <input type="hidden" id="editId" value="">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Inbound Date <span class="required">*</span>
+                            </label>
+                            <input type="date" class="form-control" id="inboundDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Warehouse <span class="required">*</span>
+                            </label>
+                            <select class="form-control form-select" id="warehouse" required>
+                                <option value="">Select warehouse</option>
+                                <option value="In Stock">In Stock</option>
+                                <option value="In Transit">In Transit</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Select Product <span class="required">*</span>
+                        </label>
+                        <select class="form-control form-select" id="productSelect" onchange="selectProduct()" required>
+                            <option value="">Loading products...</option>
+                        </select>
+                        <div class="form-hint">Select from existing products. Add new products in the Products page.</div>
+                    </div>
+
+                    <!-- Selected Product Info -->
+                    <div class="batch-info" id="productInfo" style="display: none;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.875rem;">
+                            <div>
+                                <span style="color: var(--gray-500);">Specification:</span>
+                                <span style="font-weight: 500; margin-left: 8px;" id="selectedSpec">-</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--gray-500);">Part Number:</span>
+                                <span style="font-weight: 500; margin-left: 8px;" id="selectedPartNumber">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Condition <span class="required">*</span>
+                            </label>
+                            <select class="form-control form-select" id="condition" required>
+                                <option value="For Sale">For Sale</option>
+                                <option value="CAO Reserved">CAO Reserved</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                DC / Origin <span class="required">*</span>
+                            </label>
+                            <select class="form-control form-select" id="origin" required>
+                                <option value="">Select origin</option>
+                                <option value="KR">KR (Korea)</option>
+                                <option value="KOREA">KOREA</option>
+                                <option value="VN">VN (Vietnam)</option>
+                                <option value="CHINA">CHINA</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row-3">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Quantity <span class="required">*</span>
+                            </label>
+                            <input type="number" class="form-control" placeholder="Enter quantity" id="qty" oninput="calculateAmount()" required min="1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Unit Price <span class="required">*</span>
+                            </label>
+                            <div style="position: relative;">
+                                <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-500);">$</span>
+                                <input type="number" step="0.01" class="form-control" placeholder="0.00" style="padding-left: 28px;" id="price" oninput="calculateAmount()" required min="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount</label>
+                            <div style="position: relative;">
+                                <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-500);">$</span>
+                                <input type="text" class="form-control" value="0.00" style="padding-left: 28px; background: var(--gray-50);" disabled id="amount">
+                            </div>
+                            <div class="form-hint">Auto-calculated: Qty × Unit Price</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" placeholder="Enter notes, supports multi-line text...&#10;e.g.: 120x4 DC2426 + 115 DC2423" rows="3"></textarea>
+                    </div>
+
+                    <!-- Calculation Panel -->
+                    <div class="calc-panel">
+                        <div class="calc-row">
+                            <span>Inbound Quantity</span>
+                            <span id="calcQty">0 pcs</span>
+                        </div>
+                        <div class="calc-row">
+                            <span>Unit Cost</span>
+                            <span id="calcPrice">$0.00</span>
+                        </div>
+                        <div class="calc-row">
+                            <span style="font-weight: 600;">Total Inbound Cost</span>
+                            <span style="color: var(--primary-600); font-size: 1.125rem;" id="calcTotal">$0.00</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" form="inboundForm" class="btn btn-primary" id="submitBtn">
+                    <span>📥</span>
+                    Save as Pending
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detailModal" style="display: none;">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title">Inbound Record Details</h3>
+                    <div style="font-size: 0.875rem; color: var(--gray-500); margin-top: 4px;" id="detailSubtitle">
+                        Loading...
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeDetail()">✕</button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <!-- Content will be dynamically loaded -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDetail()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from '../js/firebase-config.js';
+        import {
+            collection,
+            addDoc,
+            getDocs,
+            getDoc,
+            doc,
+            updateDoc,
+            deleteDoc,
+            query,
+            where,
+            orderBy,
+            serverTimestamp,
+            Timestamp
+        } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+        import { initPageAuth, handleLogout, getNewItemIds } from '../js/page-auth.js';
+
+        let currentUser = null;
+        let allRecords = [];
+        let filteredRecords = [];
+        let currentFilter = 'all';
+        let allProducts = [];
+        let selectedProduct = null;
+        let newItemIds = new Set(); // Track new items for highlighting
+
+        // Initialize page
+        async function init() {
+            currentUser = await initPageAuth('inbound');
+            // Get new item IDs before marking page as viewed
+            if (currentUser) {
+                newItemIds = await getNewItemIds(currentUser.uid, 'inbound');
+            }
+            setDefaultDate();
+            await loadProducts();
+            await loadInboundRecords();
+        }
+
+        init();
+
+        // Load products from Firestore
+        async function loadProducts() {
+            try {
+                const productsRef = collection(db, 'products');
+                const querySnapshot = await getDocs(productsRef);
+
+                allProducts = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    // Only include active products
+                    if (data.status === 'active') {
+                        allProducts.push({
+                            id: doc.id,
+                            ...data
+                        });
+                    }
+                });
+
+                // Sort by specification client-side
+                allProducts.sort((a, b) => (a.specification || '').localeCompare(b.specification || ''));
+
+                updateProductSelect();
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        // Update product select dropdown
+        function updateProductSelect() {
+            const select = document.getElementById('productSelect');
+            select.innerHTML = '<option value="">Select a product...</option>';
+
+            allProducts.forEach((product, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${product.specification} (${product.partNumber})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Handle product selection
+        window.selectProduct = function() {
+            const select = document.getElementById('productSelect');
+            const index = select.value;
+
+            if (index === '') {
+                selectedProduct = null;
+                document.getElementById('productInfo').style.display = 'none';
+                return;
+            }
+
+            selectedProduct = allProducts[parseInt(index)];
+            document.getElementById('productInfo').style.display = 'block';
+            document.getElementById('selectedSpec').textContent = selectedProduct.specification;
+            document.getElementById('selectedPartNumber').textContent = selectedProduct.partNumber;
+        };
+
+        // Set default date to today
+        function setDefaultDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('inboundDate').value = today;
+        }
+
+        // Load all inbound records from Firestore
+        window.loadInboundRecords = async function() {
+            const tbody = document.getElementById('inboundTableBody');
+            tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px;">Loading records...</td></tr>';
+
+            try {
+                const inboundRef = collection(db, 'inbound');
+                const querySnapshot = await getDocs(inboundRef);
+
+                allRecords = [];
+                querySnapshot.forEach((doc) => {
+                    allRecords.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Sort by inbound date descending (client-side)
+                allRecords.sort((a, b) => (b.inboundDate || '').localeCompare(a.inboundDate || ''));
+
+                applyFilters();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading records:', error);
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px; color: var(--error-500);">Error loading records. Please try again.</td></tr>';
+            }
+        };
+
+        // Apply filters and render table
+        window.applyFilters = function() {
+            const searchTerm = document.getElementById('tableSearch').value.toLowerCase();
+            const warehouseFilter = document.getElementById('filterWarehouse').value;
+            const conditionFilter = document.getElementById('filterCondition').value;
+
+            filteredRecords = allRecords.filter(record => {
+                // Status filter
+                if (currentFilter === 'pending' && record.status !== 'pending') return false;
+                if (currentFilter === 'confirmed' && record.status !== 'confirmed') return false;
+
+                // Search filter
+                if (searchTerm) {
+                    const searchFields = [
+                        record.specification,
+                        record.partNumber,
+                        record.origin
+                    ].join(' ').toLowerCase();
+                    if (!searchFields.includes(searchTerm)) return false;
+                }
+
+                // Warehouse filter
+                if (warehouseFilter && record.warehouse !== warehouseFilter) return false;
+
+                // Condition filter
+                if (conditionFilter && record.condition !== conditionFilter) return false;
+
+                return true;
+            });
+
+            renderTable();
+            updatePendingCount();
+        };
+
+        // Render table with filtered records
+        function renderTable() {
+            const tbody = document.getElementById('inboundTableBody');
+
+            if (filteredRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px; color: var(--gray-500);">No records found</td></tr>';
+                document.getElementById('totalRecords').textContent = '0 records';
+                document.getElementById('paginationInfo').textContent = 'Showing 0 records';
+                return;
+            }
+
+            tbody.innerHTML = filteredRecords.map(record => {
+                const isPending = record.status === 'pending';
+                const isNew = newItemIds.has(record.id);
+                const rowClass = isNew ? 'new-item' : '';
+                const rowStyle = isPending && !isNew ? 'style="background: var(--warning-50);"' : '';
+                const date = formatDate(record.inboundDate);
+                const amount = (record.quantity * record.unitPrice).toFixed(2);
+
+                return `
+                    <tr class="${rowClass}" ${rowStyle} ${isNew ? `onmouseenter="markAsSeen('${record.id}', this)"` : ''}>
+                        <td style="font-weight: 500;">${date}</td>
+                        <td>
+                            <div style="font-weight: 500;">${escapeHtml(record.specification)}${isNew ? '<span class="new-badge">New</span>' : ''}</div>
+                        </td>
+                        <td><span class="sku-display">${escapeHtml(record.partNumber)}</span></td>
+                        <td style="text-align: right; font-family: var(--font-family-mono);">${record.quantity.toLocaleString()}</td>
+                        <td style="text-align: right; font-family: var(--font-family-mono);">$${record.unitPrice.toFixed(2)}</td>
+                        <td style="text-align: right; font-family: var(--font-family-mono); font-weight: 600;">$${parseFloat(amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        <td><span class="badge badge-info">${escapeHtml(record.condition)}</span></td>
+                        <td>${escapeHtml(record.warehouse)}</td>
+                        <td>
+                            <div style="max-width: 100px; font-size: 0.8125rem;">${escapeHtml(record.origin)}</div>
+                        </td>
+                        <td><span class="badge ${isPending ? 'badge-warning' : 'badge-success'}">${isPending ? 'Pending' : 'Confirmed'}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                ${isPending ? `
+                                    <button class="btn btn-success btn-sm" onclick="confirmRecord('${record.id}')">Confirm</button>
+                                    <button class="action-btn edit" title="Edit" onclick="editRecord('${record.id}')">✏️</button>
+                                ` : `
+                                    <button class="action-btn" title="View Details" onclick="showDetail('${record.id}')">👁️</button>
+                                `}
+                                <button class="action-btn delete" title="Delete" onclick="deleteRecord('${record.id}')" style="color: var(--error-500);">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('totalRecords').textContent = `${filteredRecords.length} records`;
+            document.getElementById('paginationInfo').textContent = `Showing ${filteredRecords.length} records`;
+        }
+
+        // Update statistics
+        function updateStats() {
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+            const monthlyRecords = allRecords.filter(record => {
+                const recordDate = parseDate(record.inboundDate);
+                return recordDate >= startOfMonth;
+            });
+
+            const totalBatches = monthlyRecords.length;
+            const totalQuantity = monthlyRecords.reduce((sum, r) => sum + r.quantity, 0);
+            const totalCost = monthlyRecords.reduce((sum, r) => sum + (r.quantity * r.unitPrice), 0);
+
+            document.getElementById('statBatches').textContent = totalBatches.toLocaleString();
+            document.getElementById('statQuantity').textContent = totalQuantity.toLocaleString();
+            document.getElementById('statCost').textContent = '$' + totalCost.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+        }
+
+        // Update pending count badge
+        function updatePendingCount() {
+            const pendingCount = allRecords.filter(r => r.status === 'pending').length;
+            const pendingCountEl = document.getElementById('pendingCount');
+            if (pendingCountEl) {
+                pendingCountEl.textContent = pendingCount;
+            }
+        }
+
+        // Set filter tab
+        window.setFilter = function(filter, element) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+            applyFilters();
+        };
+
+        // Reset filters
+        window.resetFilters = function() {
+            document.getElementById('tableSearch').value = '';
+            document.getElementById('filterWarehouse').value = '';
+            document.getElementById('filterCondition').value = '';
+            applyFilters();
+        };
+
+        // Handle search
+        window.handleSearch = function() {
+            applyFilters();
+        };
+
+        // Open modal for new record
+        window.openModal = function() {
+            document.getElementById('modalTitle').textContent = 'New Inbound Record';
+            document.getElementById('submitBtn').innerHTML = '<span>📥</span> Save as Pending';
+            document.getElementById('inboundForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('modalError').style.display = 'none';
+            document.getElementById('productInfo').style.display = 'none';
+            selectedProduct = null;
+            updateProductSelect();
+            setDefaultDate();
+            calculateAmount();
+            document.getElementById('inboundModal').style.display = 'flex';
+        };
+
+        // Close modal
+        window.closeModal = function() {
+            document.getElementById('inboundModal').style.display = 'none';
+        };
+
+        // Calculate amount
+        window.calculateAmount = function() {
+            const qty = parseFloat(document.getElementById('qty').value) || 0;
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const amount = qty * price;
+            document.getElementById('amount').value = amount.toFixed(2);
+            document.getElementById('calcQty').textContent = qty + ' pcs';
+            document.getElementById('calcPrice').textContent = '$' + price.toFixed(2);
+            document.getElementById('calcTotal').textContent = '$' + amount.toLocaleString(undefined, {minimumFractionDigits: 2});
+        };
+
+        // Handle form submit
+        window.handleSubmitInbound = async function(event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const errorDiv = document.getElementById('modalError');
+            const errorText = document.getElementById('modalErrorText');
+
+            // Check if product is selected (for new records)
+            const editId = document.getElementById('editId').value;
+            if (!editId && !selectedProduct) {
+                errorText.textContent = 'Please select a product';
+                errorDiv.style.display = 'flex';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+            errorDiv.style.display = 'none';
+
+            try {
+                const data = {
+                    inboundDate: document.getElementById('inboundDate').value,
+                    warehouse: document.getElementById('warehouse').value,
+                    specification: editId ? (allRecords.find(r => r.id === editId)?.specification || selectedProduct?.specification) : selectedProduct.specification,
+                    partNumber: editId ? (allRecords.find(r => r.id === editId)?.partNumber || selectedProduct?.partNumber) : selectedProduct.partNumber,
+                    condition: document.getElementById('condition').value,
+                    origin: document.getElementById('origin').value,
+                    quantity: parseInt(document.getElementById('qty').value),
+                    unitPrice: parseFloat(document.getElementById('price').value),
+                    notes: document.getElementById('notes').value.trim(),
+                    status: 'pending',
+                    updatedAt: serverTimestamp()
+                };
+
+                if (editId) {
+                    // Update existing record
+                    await updateDoc(doc(db, 'inbound', editId), data);
+                } else {
+                    // Create new record
+                    data.createdAt = serverTimestamp();
+                    data.createdBy = currentUser?.uid || 'unknown';
+                    await addDoc(collection(db, 'inbound'), data);
+                }
+
+                closeModal();
+                await loadInboundRecords();
+            } catch (error) {
+                console.error('Error saving record:', error);
+                errorText.textContent = 'Error saving record. Please try again.';
+                errorDiv.style.display = 'flex';
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span>📥</span> Save as Pending';
+        };
+
+        // Edit record
+        window.editRecord = async function(id) {
+            const record = allRecords.find(r => r.id === id);
+            if (!record) return;
+
+            document.getElementById('modalTitle').textContent = 'Edit Inbound Record';
+            document.getElementById('submitBtn').innerHTML = '<span>📥</span> Update Record';
+            document.getElementById('editId').value = id;
+            document.getElementById('inboundDate').value = record.inboundDate;
+            document.getElementById('warehouse').value = record.warehouse;
+            document.getElementById('condition').value = record.condition;
+            document.getElementById('origin').value = record.origin;
+            document.getElementById('qty').value = record.quantity;
+            document.getElementById('price').value = record.unitPrice;
+            document.getElementById('notes').value = record.notes || '';
+            document.getElementById('modalError').style.display = 'none';
+
+            // Find and select the product
+            const productIndex = allProducts.findIndex(p => p.partNumber === record.partNumber);
+            const productSelect = document.getElementById('productSelect');
+            if (productIndex !== -1) {
+                productSelect.value = productIndex;
+                selectedProduct = allProducts[productIndex];
+            } else {
+                productSelect.value = '';
+                selectedProduct = { specification: record.specification, partNumber: record.partNumber };
+            }
+
+            // Show product info
+            document.getElementById('productInfo').style.display = 'block';
+            document.getElementById('selectedSpec').textContent = record.specification;
+            document.getElementById('selectedPartNumber').textContent = record.partNumber;
+
+            calculateAmount();
+            document.getElementById('inboundModal').style.display = 'flex';
+        };
+
+        // Confirm record
+        window.confirmRecord = async function(id) {
+            if (!confirm('Are you sure you want to confirm this inbound record? This will add the items to inventory.')) {
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, 'inbound', id), {
+                    status: 'confirmed',
+                    confirmedAt: serverTimestamp(),
+                    confirmedBy: currentUser?.uid || 'unknown'
+                });
+                await loadInboundRecords();
+            } catch (error) {
+                console.error('Error confirming record:', error);
+                alert('Error confirming record. Please try again.');
+            }
+        };
+
+        // Delete record
+        window.deleteRecord = async function(id) {
+            if (!confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                await deleteDoc(doc(db, 'inbound', id));
+                await loadInboundRecords();
+            } catch (error) {
+                console.error('Error deleting record:', error);
+                alert('Error deleting record. Please try again.');
+            }
+        };
+
+        // Show detail modal
+        window.showDetail = function(id) {
+            const record = allRecords.find(r => r.id === id);
+            if (!record) return;
+
+            const amount = (record.quantity * record.unitPrice).toFixed(2);
+
+            document.getElementById('detailSubtitle').innerHTML = `
+                ${escapeHtml(record.specification)} · <span class="sku-display" style="font-size: 0.75rem;">${escapeHtml(record.partNumber)}</span>
+            `;
+
+            document.getElementById('detailContent').innerHTML = `
+                <div class="detail-grid" style="margin-bottom: 24px;">
+                    <div class="detail-item">
+                        <span class="detail-label">Inbound Date</span>
+                        <span class="detail-value">${formatDate(record.inboundDate)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Condition</span>
+                        <span class="detail-value"><span class="badge badge-info">${escapeHtml(record.condition)}</span></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Quantity</span>
+                        <span class="detail-value" style="font-family: var(--font-family-mono); font-weight: 600;">${record.quantity.toLocaleString()}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Unit Price</span>
+                        <span class="detail-value" style="font-family: var(--font-family-mono);">$${record.unitPrice.toFixed(2)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Amount</span>
+                        <span class="detail-value" style="font-family: var(--font-family-mono); font-weight: 600; color: var(--primary-600);">$${parseFloat(amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Warehouse</span>
+                        <span class="detail-value">${escapeHtml(record.warehouse)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">DC/Origin</span>
+                        <span class="detail-value">${escapeHtml(record.origin)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value"><span class="badge ${record.status === 'pending' ? 'badge-warning' : 'badge-success'}">${record.status === 'pending' ? 'Pending' : 'Confirmed'}</span></span>
+                    </div>
+                </div>
+                ${record.notes ? `
+                    <div style="margin-top: 24px;">
+                        <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 12px;">Notes</h4>
+                        <div style="background: var(--gray-50); border-radius: var(--radius-md); padding: 16px; font-family: var(--font-family-mono); font-size: 0.875rem; white-space: pre-wrap; line-height: 1.6;">${escapeHtml(record.notes)}</div>
+                    </div>
+                ` : ''}
+            `;
+
+            document.getElementById('detailModal').style.display = 'flex';
+        };
+
+        // Close detail modal
+        window.closeDetail = function() {
+            document.getElementById('detailModal').style.display = 'none';
+        };
+
+        // Utility functions
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            // Handle both string dates and Firestore Timestamps
+            if (dateStr.toDate) {
+                return dateStr.toDate().toISOString().split('T')[0];
+            }
+            return dateStr;
+        }
+
+        function parseDate(dateStr) {
+            if (!dateStr) return new Date(0);
+            if (dateStr.toDate) {
+                return dateStr.toDate();
+            }
+            return new Date(dateStr);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Mark item as seen (remove highlight on hover)
+        window.markAsSeen = function(id, element) {
+            newItemIds.delete(id);
+            element.classList.remove('new-item');
+            // Remove the "New" badge
+            const badge = element.querySelector('.new-badge');
+            if (badge) badge.remove();
+        };
+
+        // Make logout available globally
+        window.handleLogout = handleLogout;
+    </script>
+</body>
+</html>

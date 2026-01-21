@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Inventory Management System</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .login-features {
+            position: absolute;
+            left: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            max-width: 360px;
+        }
+
+        .login-features h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .login-features p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9375rem;
+        }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+        }
+
+        .login-card {
+            position: absolute;
+            right: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .role-option {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: center;
+        }
+
+        .role-option:hover {
+            border-color: var(--primary-300);
+        }
+
+        .role-option.selected {
+            border-color: var(--primary-500);
+            background: var(--primary-50);
+        }
+
+        .role-option-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .role-option-title {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: var(--gray-900);
+        }
+
+        .role-option-desc {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: 4px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: var(--gray-200);
+        }
+
+        .divider-text {
+            font-size: 0.8125rem;
+            color: var(--gray-400);
+        }
+
+        @media (max-width: 1024px) {
+            .login-features {
+                display: none;
+            }
+
+            .login-card {
+                position: static;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Left Side - Features -->
+        <div class="login-features">
+            <h2>Smart Inventory<br>Management System</h2>
+            <p>Efficiently manage inventory, optimize purchasing decisions, and track business data in real-time, making your business management easier and more convenient.</p>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">📦</div>
+                    <span>Real-time inventory monitoring & alerts</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <span>FIFO cost method gross profit analysis</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📋</div>
+                    <span>Batch management & traceability</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">👥</div>
+                    <span>Multi-role fine-grained access control</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="login-logo-icon">📦</div>
+                <h1 class="login-title">Welcome Back</h1>
+                <p class="login-subtitle">Please log in to your account to continue</p>
+            </div>
+
+            <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
+                <!-- Error Message -->
+                <div id="loginError" class="alert alert-error" style="display: none; margin-bottom: 16px;">
+                    <span class="alert-icon">!</span>
+                    <div class="alert-content">
+                        <div class="alert-text" id="loginErrorText">Invalid username or password</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" placeholder="Enter username" required autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Enter password" required autocomplete="current-password">
+                </div>
+
+                <div class="login-actions">
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember me</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary login-btn" id="loginBtn">
+                    Log In
+                </button>
+
+                <div id="firstTimeSetup" style="display: none;">
+                    <div class="divider">
+                        <div class="divider-line"></div>
+                        <span class="divider-text">First Time Setup</span>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <div style="background: var(--gray-50); border-radius: var(--radius-md); padding: 16px; font-size: 0.8125rem;">
+                        <p style="color: var(--gray-600); margin-bottom: 12px;">No account yet? Set up your first admin account:</p>
+                        <button type="button" class="btn btn-secondary btn-sm" style="width: 100%;" onclick="showSetupModal()">
+                            Initialize First Admin
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div style="text-align: center; margin-top: 32px; font-size: 0.8125rem; color: var(--gray-400);">
+                © 2025 Inventory Management System · Version 1.0.0
+            </div>
+        </div>
+    </div>
+
+    <!-- Setup Modal -->
+    <div class="modal-overlay" id="setupModal" style="display: none;">
+        <div class="modal" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Initialize First Admin</h3>
+                <button class="modal-close" onclick="hideSetupModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="setupError" class="alert alert-error" style="display: none; margin-bottom: 16px;">
+                    <span class="alert-icon">!</span>
+                    <div class="alert-content">
+                        <div class="alert-text" id="setupErrorText"></div>
+                    </div>
+                </div>
+                <div id="setupSuccess" class="alert alert-success" style="display: none; margin-bottom: 16px;">
+                    <span class="alert-icon">&#10003;</span>
+                    <div class="alert-content">
+                        <div class="alert-text">Admin account created successfully! You can now log in.</div>
+                    </div>
+                </div>
+                <form id="setupForm" onsubmit="handleSetup(event)">
+                    <div class="form-group">
+                        <label class="form-label">Display Name</label>
+                        <input type="text" class="form-control" id="setupDisplayName" placeholder="e.g., John Admin" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" id="setupUsername" placeholder="e.g., admin" required pattern="[a-zA-Z0-9_]+" title="Only letters, numbers, and underscores">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="setupEmail" placeholder="admin@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="setupPassword" placeholder="At least 6 characters" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="setupConfirmPassword" placeholder="Confirm password" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="hideSetupModal()">Cancel</button>
+                <button type="submit" form="setupForm" class="btn btn-primary" id="setupBtn">Create Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { loginWithUsername, storeUserLocally, redirectIfAuthenticated, initializeFirstAdmin } from '../js/auth.js';
+        import { db } from '../js/firebase-config.js';
+        import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+
+        // Check if already logged in
+        redirectIfAuthenticated('../pages/index.html');
+
+        // Check if any users exist and show/hide first time setup
+        async function checkFirstTimeSetup() {
+            try {
+                const usersRef = collection(db, 'users');
+                const querySnapshot = await getDocs(usersRef);
+
+                if (querySnapshot.empty) {
+                    // No users exist, show the setup section
+                    document.getElementById('firstTimeSetup').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error checking users:', error);
+            }
+        }
+
+        checkFirstTimeSetup();
+
+        // Make functions available globally
+        window.handleLogin = async function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const loginBtn = document.getElementById('loginBtn');
+            const loginError = document.getElementById('loginError');
+            const loginErrorText = document.getElementById('loginErrorText');
+
+            // Disable button and show loading state
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            loginError.style.display = 'none';
+
+            try {
+                const result = await loginWithUsername(username, password);
+
+                if (result.success) {
+                    // Store user data
+                    storeUserLocally(result.user, rememberMe);
+                    // Redirect to dashboard
+                    window.location.href = '../pages/index.html';
+                } else {
+                    loginErrorText.textContent = result.error;
+                    loginError.style.display = 'flex';
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Log In';
+                }
+            } catch (error) {
+                loginErrorText.textContent = 'An error occurred. Please try again.';
+                loginError.style.display = 'flex';
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Log In';
+            }
+        };
+
+        window.showSetupModal = function() {
+            document.getElementById('setupModal').style.display = 'flex';
+            document.getElementById('setupError').style.display = 'none';
+            document.getElementById('setupSuccess').style.display = 'none';
+            document.getElementById('setupForm').reset();
+        };
+
+        window.hideSetupModal = function() {
+            document.getElementById('setupModal').style.display = 'none';
+        };
+
+        window.handleSetup = async function(event) {
+            event.preventDefault();
+
+            const displayName = document.getElementById('setupDisplayName').value.trim();
+            const username = document.getElementById('setupUsername').value.trim();
+            const email = document.getElementById('setupEmail').value.trim();
+            const password = document.getElementById('setupPassword').value;
+            const confirmPassword = document.getElementById('setupConfirmPassword').value;
+            const setupBtn = document.getElementById('setupBtn');
+            const setupError = document.getElementById('setupError');
+            const setupErrorText = document.getElementById('setupErrorText');
+            const setupSuccess = document.getElementById('setupSuccess');
+
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                setupErrorText.textContent = 'Passwords do not match';
+                setupError.style.display = 'flex';
+                return;
+            }
+
+            // Disable button
+            setupBtn.disabled = true;
+            setupBtn.textContent = 'Creating...';
+            setupError.style.display = 'none';
+
+            try {
+                const result = await initializeFirstAdmin(username, email, password, displayName);
+
+                if (result.success) {
+                    setupSuccess.style.display = 'flex';
+                    document.getElementById('setupForm').style.display = 'none';
+                    setupBtn.style.display = 'none';
+
+                    // Auto-fill login form
+                    document.getElementById('username').value = username;
+                    document.getElementById('password').value = '';
+
+                    // Close modal after 2 seconds
+                    setTimeout(() => {
+                        hideSetupModal();
+                        document.getElementById('setupForm').style.display = 'block';
+                        setupBtn.style.display = 'block';
+                        setupBtn.disabled = false;
+                        setupBtn.textContent = 'Create Admin';
+                    }, 2000);
+                } else {
+                    setupErrorText.textContent = result.error;
+                    setupError.style.display = 'flex';
+                    setupBtn.disabled = false;
+                    setupBtn.textContent = 'Create Admin';
+                }
+            } catch (error) {
+                setupErrorText.textContent = 'An error occurred. Please try again.';
+                setupError.style.display = 'flex';
+                setupBtn.disabled = false;
+                setupBtn.textContent = 'Create Admin';
+            }
+        };
+
+        // Close modal when clicking outside
+        document.getElementById('setupModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideSetupModal();
+            }
+        });
+    </script>
+</body>
+</html>

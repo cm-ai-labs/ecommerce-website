@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Inventory Management System</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon">📦</div>
+                    <div>
+                        <div class="sidebar-logo-text">Inventory System</div>
+                        <div class="sidebar-logo-subtitle">Inventory Management</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="../pages/index.html" class="nav-item">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Core Business</div>
+                    <a href="../pages/products.html" class="nav-item active">
+                        <span class="nav-item-icon">🏷️</span>
+                        <span>Products</span>
+                        <span class="nav-item-badge" id="products-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/inbound.html" class="nav-item">
+                        <span class="nav-item-icon">📥</span>
+                        <span>Inbound</span>
+                        <span class="nav-item-badge" id="inbound-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/outbound.html" class="nav-item">
+                        <span class="nav-item-icon">📤</span>
+                        <span>Outbound</span>
+                        <span class="nav-item-badge" id="outbound-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/inventory.html" class="nav-item">
+                        <span class="nav-item-icon">📋</span>
+                        <span>Inventory</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports & Analytics</div>
+                    <a href="../pages/profit.html" class="nav-item">
+                        <span class="nav-item-icon">📈</span>
+                        <span>Gross Profit</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">-</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Loading...</div>
+                        <div class="user-role" id="userRole">-</div>
+                    </div>
+                    <button id="logoutBtn" style="background: none; border: none; cursor: pointer; color: var(--gray-400);" title="Logout">🚪</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <div class="breadcrumb">
+                        <a href="../pages/index.html">Home</a>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Products</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="header-search">
+                        <span class="header-search-icon">🔍</span>
+                        <input type="text" placeholder="Search products, SKU..." id="headerSearch" oninput="handleSearch()">
+                    </div>
+                    <button class="header-icon-btn">
+                        <span>🔔</span>
+                        <span class="badge"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Products</h1>
+                        <p class="page-subtitle">Manage SSD product information including specifications, part numbers and status</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal()">
+                        <span>➕</span>
+                        Add Product
+                    </button>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="card">
+                    <div class="card-body" style="padding: 16px 24px;">
+                        <div class="filter-bar" style="margin-bottom: 0;">
+                            <div class="search-input">
+                                <span class="icon">🔍</span>
+                                <input type="text" placeholder="Search specification or part number..." class="form-control" style="padding-left: 40px;" id="tableSearch" oninput="handleSearch()">
+                            </div>
+                            <select class="form-control form-select filter-select" id="filterStatus" onchange="applyFilters()">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                            <select class="form-control form-select filter-select" id="filterSeries" onchange="applyFilters()">
+                                <option value="">All Series</option>
+                                <option value="PM893">PM893</option>
+                                <option value="PM897">PM897</option>
+                                <option value="PM963">PM963</option>
+                                <option value="PM1733">PM1733</option>
+                                <option value="PM1735">PM1735</option>
+                                <option value="PM9D3a">PM9D3a</option>
+                            </select>
+                            <select class="form-control form-select filter-select" id="filterCapacity" onchange="applyFilters()">
+                                <option value="">All Capacity</option>
+                                <option value="480G">480G</option>
+                                <option value="960G">960G</option>
+                                <option value="1.92TB">1.92TB</option>
+                                <option value="3.2TB">3.2TB</option>
+                                <option value="3.84TB">3.84TB</option>
+                            </select>
+                            <button class="btn btn-secondary" onclick="resetFilters()">
+                                <span>🔄</span>
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <h3 class="card-title">Product List</h3>
+                            <span class="badge badge-info" id="totalProducts">0 products</span>
+                        </div>
+                        <button class="btn btn-ghost btn-sm" onclick="loadData()">
+                            <span>🔄</span>
+                            Refresh
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Specification</th>
+                                    <th>Part Number</th>
+                                    <th>Series</th>
+                                    <th>Capacity</th>
+                                    <th style="text-align: right;">Stock</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th style="width: 120px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody">
+                                <tr>
+                                    <td colspan="8" style="text-align: center; padding: 40px;">Loading products...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <div class="pagination">
+                            <div class="pagination-info" id="paginationInfo">
+                                Showing 0 products
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div class="modal-overlay" id="productModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Add Product</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- Error Message -->
+                <div id="modalError" class="alert alert-error" style="display: none; margin-bottom: 16px;">
+                    <span class="alert-icon">!</span>
+                    <div class="alert-content">
+                        <div class="alert-text" id="modalErrorText"></div>
+                    </div>
+                </div>
+
+                <form id="productForm" onsubmit="handleSubmitProduct(event)">
+                    <input type="hidden" id="editId" value="">
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Specification Name <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="specification" placeholder="e.g., SSD PM897 1.92TB 2.5" required>
+                        <div class="form-hint">Enter the complete SSD specification name</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Part Number <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="partNumber" placeholder="e.g., MZ7L31T9HBNA-00A03" required>
+                            <div class="form-hint">Samsung original part number</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Series</label>
+                            <select class="form-control form-select" id="series">
+                                <option value="">Select series</option>
+                                <option value="PM893">PM893</option>
+                                <option value="PM897">PM897</option>
+                                <option value="PM963">PM963</option>
+                                <option value="PM1733">PM1733</option>
+                                <option value="PM1735">PM1735</option>
+                                <option value="PM9D3a">PM9D3a</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Capacity</label>
+                            <select class="form-control form-select" id="capacity">
+                                <option value="">Select capacity</option>
+                                <option value="480G">480G</option>
+                                <option value="960G">960G</option>
+                                <option value="1.92TB">1.92TB</option>
+                                <option value="3.2TB">3.2TB</option>
+                                <option value="3.84TB">3.84TB</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Interface Type</label>
+                            <select class="form-control form-select" id="interfaceType">
+                                <option value="">Select interface</option>
+                                <option value="SATA">SATA</option>
+                                <option value="NVMe">NVMe</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" id="description" placeholder="Enter detailed product description..." rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <div style="display: flex; gap: 24px; margin-top: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="status" value="active" id="statusActive" checked>
+                                <span>Active</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="status" value="inactive" id="statusInactive">
+                                <span>Inactive</span>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" form="productForm" class="btn btn-primary" id="submitBtn">Add Product</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Stock Modal -->
+    <div class="modal-overlay" id="stockModal" style="display: none;">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title">Stock Details</h3>
+                    <div style="font-size: 0.875rem; color: var(--gray-500); margin-top: 4px;" id="stockModalSubtitle">
+                        Loading...
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeStockModal()">✕</button>
+            </div>
+            <div class="modal-body" id="stockModalContent">
+                <!-- Content will be dynamically loaded -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeStockModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from '../js/firebase-config.js';
+        import {
+            collection,
+            addDoc,
+            getDocs,
+            getDoc,
+            doc,
+            updateDoc,
+            deleteDoc,
+            query,
+            where,
+            orderBy,
+            serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+        import { initPageAuth, handleLogout, getNewItemIds } from '../js/page-auth.js';
+
+        let currentUser = null;
+        let allProducts = [];
+        let filteredProducts = [];
+        let stockData = {}; // partNumber -> { inbound, outbound, available }
+        let newItemIds = new Set(); // Track new items for highlighting
+
+        // Initialize page
+        async function init() {
+            currentUser = await initPageAuth('products');
+            // Get new item IDs before marking page as viewed
+            if (currentUser) {
+                newItemIds = await getNewItemIds(currentUser.uid, 'products');
+            }
+            await loadData();
+        }
+
+        init();
+
+        // Load all data
+        window.loadData = async function() {
+            await loadStockData();
+            await loadProducts();
+        };
+
+        // Load stock data from inbound and outbound
+        async function loadStockData() {
+            try {
+                stockData = {};
+
+                // Get all confirmed inbound records
+                const inboundRef = collection(db, 'inbound');
+                const inboundQuery = query(inboundRef, where('status', '==', 'confirmed'));
+                const inboundSnapshot = await getDocs(inboundQuery);
+
+                inboundSnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const key = data.partNumber;
+                    if (!stockData[key]) {
+                        stockData[key] = { inbound: 0, outbound: 0, available: 0 };
+                    }
+                    stockData[key].inbound += data.quantity;
+                });
+
+                // Get all outbound records
+                const outboundRef = collection(db, 'outbound');
+                const outboundSnapshot = await getDocs(outboundRef);
+
+                outboundSnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const key = data.partNumber;
+                    if (!stockData[key]) {
+                        stockData[key] = { inbound: 0, outbound: 0, available: 0 };
+                    }
+                    stockData[key].outbound += data.quantity;
+                });
+
+                // Calculate available stock
+                Object.keys(stockData).forEach(key => {
+                    stockData[key].available = stockData[key].inbound - stockData[key].outbound;
+                });
+
+            } catch (error) {
+                console.error('Error loading stock data:', error);
+            }
+        }
+
+        // Load products from Firestore
+        async function loadProducts() {
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px;">Loading products...</td></tr>';
+
+            try {
+                const productsRef = collection(db, 'products');
+                const querySnapshot = await getDocs(productsRef);
+
+                allProducts = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    allProducts.push({
+                        id: doc.id,
+                        ...data,
+                        stock: stockData[data.partNumber]?.available || 0
+                    });
+                });
+
+                // Sort by createdAt descending (client-side)
+                allProducts.sort((a, b) => {
+                    const dateA = a.createdAt?.toDate?.() || new Date(0);
+                    const dateB = b.createdAt?.toDate?.() || new Date(0);
+                    return dateB - dateA;
+                });
+
+                applyFilters();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: var(--error-500);">Error loading products. Please try again.</td></tr>';
+            }
+        }
+
+        // Apply filters and render table
+        window.applyFilters = function() {
+            const searchTerm = document.getElementById('tableSearch').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+            const seriesFilter = document.getElementById('filterSeries').value;
+            const capacityFilter = document.getElementById('filterCapacity').value;
+
+            filteredProducts = allProducts.filter(product => {
+                // Search filter
+                if (searchTerm) {
+                    const searchFields = [
+                        product.specification,
+                        product.partNumber,
+                        product.series,
+                        product.description
+                    ].join(' ').toLowerCase();
+                    if (!searchFields.includes(searchTerm)) return false;
+                }
+
+                // Status filter
+                if (statusFilter && product.status !== statusFilter) return false;
+
+                // Series filter
+                if (seriesFilter && product.series !== seriesFilter) return false;
+
+                // Capacity filter
+                if (capacityFilter && product.capacity !== capacityFilter) return false;
+
+                return true;
+            });
+
+            renderTable();
+        };
+
+        // Render table with filtered products
+        function renderTable() {
+            const tbody = document.getElementById('productsTableBody');
+
+            if (filteredProducts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: var(--gray-500);">No products found</td></tr>';
+                document.getElementById('totalProducts').textContent = '0 products';
+                document.getElementById('paginationInfo').textContent = 'Showing 0 products';
+                return;
+            }
+
+            tbody.innerHTML = filteredProducts.map(product => {
+                const isActive = product.status === 'active';
+                const isLowStock = product.stock > 0 && product.stock < 50;
+                const stockColor = product.stock === 0 ? 'var(--gray-400)' : (isLowStock ? 'var(--error-600)' : 'inherit');
+                const createdDate = formatDate(product.createdAt);
+                const isNew = newItemIds.has(product.id);
+
+                return `
+                    <tr class="${isNew ? 'new-item' : ''}" ${isNew ? `onmouseenter="markAsSeen('${product.id}', this)"` : ''}>
+                        <td>
+                            <div style="font-weight: 500;">${escapeHtml(product.specification)}${isNew ? '<span class="new-badge">New</span>' : ''}</div>
+                            ${product.description ? `<div style="font-size: 0.8125rem; color: var(--gray-500);">${escapeHtml(product.description)}</div>` : ''}
+                        </td>
+                        <td><span class="sku-display">${escapeHtml(product.partNumber)}</span></td>
+                        <td>${escapeHtml(product.series || '-')}</td>
+                        <td>${escapeHtml(product.capacity || '-')}</td>
+                        <td style="text-align: right; font-family: var(--font-family-mono); color: ${stockColor};">${product.stock.toLocaleString()}</td>
+                        <td>
+                            <span class="badge ${isActive ? 'badge-success' : 'badge-gray'}">
+                                <span class="status-dot ${isActive ? 'active' : 'inactive'}"></span>
+                                ${isActive ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td style="color: var(--gray-500);">${createdDate}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn edit" title="Edit" onclick="editProduct('${product.id}')">✏️</button>
+                                <button class="action-btn" title="View Stock" onclick="viewStock('${product.id}')">📋</button>
+                                <button class="action-btn" title="${isActive ? 'Disable' : 'Enable'}" onclick="toggleStatus('${product.id}', ${isActive})">${isActive ? '🚫' : '✅'}</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('totalProducts').textContent = `${filteredProducts.length} products`;
+            document.getElementById('paginationInfo').textContent = `Showing ${filteredProducts.length} products`;
+        }
+
+        // Handle search
+        window.handleSearch = function() {
+            applyFilters();
+        };
+
+        // Reset filters
+        window.resetFilters = function() {
+            document.getElementById('tableSearch').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterSeries').value = '';
+            document.getElementById('filterCapacity').value = '';
+            applyFilters();
+        };
+
+        // Open modal for new product
+        window.openModal = function() {
+            document.getElementById('modalTitle').textContent = 'Add Product';
+            document.getElementById('submitBtn').textContent = 'Add Product';
+            document.getElementById('productForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('modalError').style.display = 'none';
+            document.getElementById('statusActive').checked = true;
+            document.getElementById('productModal').style.display = 'flex';
+        };
+
+        // Close modal
+        window.closeModal = function() {
+            document.getElementById('productModal').style.display = 'none';
+        };
+
+        // Edit product
+        window.editProduct = function(id) {
+            const product = allProducts.find(p => p.id === id);
+            if (!product) return;
+
+            document.getElementById('modalTitle').textContent = 'Edit Product';
+            document.getElementById('submitBtn').textContent = 'Update Product';
+            document.getElementById('editId').value = id;
+            document.getElementById('specification').value = product.specification;
+            document.getElementById('partNumber').value = product.partNumber;
+            document.getElementById('series').value = product.series || '';
+            document.getElementById('capacity').value = product.capacity || '';
+            document.getElementById('interfaceType').value = product.interfaceType || '';
+            document.getElementById('description').value = product.description || '';
+            document.getElementById('modalError').style.display = 'none';
+
+            if (product.status === 'active') {
+                document.getElementById('statusActive').checked = true;
+            } else {
+                document.getElementById('statusInactive').checked = true;
+            }
+
+            document.getElementById('productModal').style.display = 'flex';
+        };
+
+        // Handle form submit
+        window.handleSubmitProduct = async function(event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const errorDiv = document.getElementById('modalError');
+            const errorText = document.getElementById('modalErrorText');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+            errorDiv.style.display = 'none';
+
+            try {
+                const editId = document.getElementById('editId').value;
+                const partNumber = document.getElementById('partNumber').value.trim();
+
+                // Check if part number already exists (for new products or if changed)
+                if (!editId) {
+                    const existingProduct = allProducts.find(p => p.partNumber === partNumber);
+                    if (existingProduct) {
+                        throw new Error('A product with this part number already exists');
+                    }
+                }
+
+                const data = {
+                    specification: document.getElementById('specification').value.trim(),
+                    partNumber: partNumber,
+                    series: document.getElementById('series').value,
+                    capacity: document.getElementById('capacity').value,
+                    interfaceType: document.getElementById('interfaceType').value,
+                    description: document.getElementById('description').value.trim(),
+                    status: document.querySelector('input[name="status"]:checked').value,
+                    updatedAt: serverTimestamp()
+                };
+
+                if (editId) {
+                    // Update existing product
+                    await updateDoc(doc(db, 'products', editId), data);
+                } else {
+                    // Create new product
+                    data.createdAt = serverTimestamp();
+                    data.createdBy = currentUser?.uid || 'unknown';
+                    await addDoc(collection(db, 'products'), data);
+                }
+
+                closeModal();
+                await loadProducts();
+            } catch (error) {
+                console.error('Error saving product:', error);
+                errorText.textContent = error.message || 'Error saving product. Please try again.';
+                errorDiv.style.display = 'flex';
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = document.getElementById('editId').value ? 'Update Product' : 'Add Product';
+        };
+
+        // Toggle product status
+        window.toggleStatus = async function(id, isCurrentlyActive) {
+            const newStatus = isCurrentlyActive ? 'inactive' : 'active';
+            const action = isCurrentlyActive ? 'disable' : 'enable';
+
+            if (!confirm(`Are you sure you want to ${action} this product?`)) {
+                return;
+            }
+
+            try {
+                await updateDoc(doc(db, 'products', id), {
+                    status: newStatus,
+                    updatedAt: serverTimestamp()
+                });
+                await loadProducts();
+            } catch (error) {
+                console.error('Error updating status:', error);
+                alert('Error updating product status. Please try again.');
+            }
+        };
+
+        // View stock details
+        window.viewStock = async function(id) {
+            const product = allProducts.find(p => p.id === id);
+            if (!product) return;
+
+            document.getElementById('stockModalSubtitle').innerHTML = `
+                ${escapeHtml(product.specification)} · <span class="sku-display" style="font-size: 0.75rem;">${escapeHtml(product.partNumber)}</span>
+            `;
+
+            const stock = stockData[product.partNumber] || { inbound: 0, outbound: 0, available: 0 };
+
+            // Get inbound batches for this product
+            let inboundBatches = [];
+            try {
+                const inboundRef = collection(db, 'inbound');
+                const inboundQuery = query(
+                    inboundRef,
+                    where('partNumber', '==', product.partNumber),
+                    where('status', '==', 'confirmed')
+                );
+                const inboundSnapshot = await getDocs(inboundQuery);
+                inboundSnapshot.forEach(doc => {
+                    inboundBatches.push(doc.data());
+                });
+                inboundBatches.sort((a, b) => (a.inboundDate > b.inboundDate ? -1 : 1));
+            } catch (error) {
+                console.error('Error loading inbound batches:', error);
+            }
+
+            document.getElementById('stockModalContent').innerHTML = `
+                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 24px;">
+                    <div class="stat-card" style="padding: 16px;">
+                        <div class="stat-value" style="color: var(--success-600);">${stock.inbound.toLocaleString()}</div>
+                        <div class="stat-label">Total Inbound</div>
+                    </div>
+                    <div class="stat-card" style="padding: 16px;">
+                        <div class="stat-value" style="color: var(--error-600);">${stock.outbound.toLocaleString()}</div>
+                        <div class="stat-label">Total Outbound</div>
+                    </div>
+                    <div class="stat-card" style="padding: 16px;">
+                        <div class="stat-value" style="color: var(--primary-600);">${stock.available.toLocaleString()}</div>
+                        <div class="stat-label">Available Stock</div>
+                    </div>
+                </div>
+
+                ${inboundBatches.length > 0 ? `
+                    <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 12px;">Inbound Batches</h4>
+                    <table class="data-table" style="font-size: 0.875rem;">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th style="text-align: right;">Quantity</th>
+                                <th style="text-align: right;">Unit Price</th>
+                                <th>Warehouse</th>
+                                <th>Origin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${inboundBatches.map(batch => `
+                                <tr>
+                                    <td>${batch.inboundDate}</td>
+                                    <td style="text-align: right; font-family: var(--font-family-mono);">${batch.quantity.toLocaleString()}</td>
+                                    <td style="text-align: right; font-family: var(--font-family-mono);">$${batch.unitPrice.toFixed(2)}</td>
+                                    <td>${escapeHtml(batch.warehouse)}</td>
+                                    <td>${escapeHtml(batch.origin)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                ` : '<p style="color: var(--gray-500); text-align: center; padding: 20px;">No inbound records for this product yet.</p>'}
+            `;
+
+            document.getElementById('stockModal').style.display = 'flex';
+        };
+
+        // Close stock modal
+        window.closeStockModal = function() {
+            document.getElementById('stockModal').style.display = 'none';
+        };
+
+        // Utility functions
+        function formatDate(timestamp) {
+            if (!timestamp) return 'N/A';
+            if (timestamp.toDate) {
+                return timestamp.toDate().toISOString().split('T')[0];
+            }
+            return timestamp;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Mark item as seen (remove highlight on hover)
+        window.markAsSeen = function(id, element) {
+            newItemIds.delete(id);
+            element.classList.remove('new-item');
+            // Remove the "New" badge
+            const badge = element.querySelector('.new-badge');
+            if (badge) badge.remove();
+        };
+
+        // Make logout available globally
+        window.handleLogout = handleLogout;
+    </script>
+</body>
+</html>

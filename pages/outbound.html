@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outbound - Inventory Management System</title>
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon">📦</div>
+                    <div>
+                        <div class="sidebar-logo-text">Inventory System</div>
+                        <div class="sidebar-logo-subtitle">Inventory Management</div>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="../pages/index.html" class="nav-item">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Core Business</div>
+                    <a href="../pages/products.html" class="nav-item">
+                        <span class="nav-item-icon">🏷️</span>
+                        <span>Products</span>
+                        <span class="nav-item-badge" id="products-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/inbound.html" class="nav-item">
+                        <span class="nav-item-icon">📥</span>
+                        <span>Inbound</span>
+                        <span class="nav-item-badge" id="inbound-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/outbound.html" class="nav-item active">
+                        <span class="nav-item-icon">📤</span>
+                        <span>Outbound</span>
+                        <span class="nav-item-badge" id="outbound-badge" style="display: none;">0</span>
+                    </a>
+                    <a href="../pages/inventory.html" class="nav-item">
+                        <span class="nav-item-icon">📋</span>
+                        <span>Inventory</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports & Analytics</div>
+                    <a href="../pages/profit.html" class="nav-item">
+                        <span class="nav-item-icon">📈</span>
+                        <span>Gross Profit</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">-</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Loading...</div>
+                        <div class="user-role" id="userRole">-</div>
+                    </div>
+                    <button id="logoutBtn" style="background: none; border: none; cursor: pointer; color: var(--gray-400);" title="Logout">🚪</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <div class="breadcrumb">
+                        <a href="../pages/index.html">Home</a>
+                        <span class="breadcrumb-separator">/</span>
+                        <span class="breadcrumb-current">Outbound</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="header-search">
+                        <span class="header-search-icon">🔍</span>
+                        <input type="text" placeholder="Search products, SKU..." id="searchInput" oninput="handleSearch()">
+                    </div>
+                    <button class="header-icon-btn">
+                        <span>🔔</span>
+                        <span class="badge"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">Outbound Management</h1>
+                        <p class="page-subtitle">Record product outbound information, system auto-deducts inventory using FIFO</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal()">
+                        <span>➕</span>
+                        New Outbound
+                    </button>
+                </div>
+
+                <!-- Stats Summary -->
+                <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon blue">📤</div>
+                        </div>
+                        <div class="stat-value" id="statBatches">0</div>
+                        <div class="stat-label">This Month Outbound Batches</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon green">💰</div>
+                        </div>
+                        <div class="stat-value" id="statSales">$0</div>
+                        <div class="stat-label">This Month Sales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon purple">📈</div>
+                        </div>
+                        <div class="stat-value" id="statProfit">$0</div>
+                        <div class="stat-label">This Month Gross Profit</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon yellow">📊</div>
+                        </div>
+                        <div class="stat-value" id="statMargin">0%</div>
+                        <div class="stat-label">Average Gross Margin</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" data-filter="all" onclick="setFilter('all', this)">All Records</button>
+                    <button class="tab" data-filter="today" onclick="setFilter('today', this)">Today</button>
+                    <button class="tab" data-filter="week" onclick="setFilter('week', this)">This Week</button>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="card">
+                    <div class="card-body" style="padding: 16px 24px;">
+                        <div class="filter-bar" style="margin-bottom: 0;">
+                            <div class="search-input">
+                                <span class="icon">🔍</span>
+                                <input type="text" placeholder="Search product or part number..." class="form-control" style="padding-left: 40px;" id="tableSearch" oninput="handleSearch()">
+                            </div>
+                            <button class="btn btn-secondary" onclick="resetFilters()">
+                                <span>🔄</span>
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Outbound Records Table -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <h3 class="card-title">Outbound Records</h3>
+                            <span class="badge badge-info" id="totalRecords">0 records</span>
+                        </div>
+                        <button class="btn btn-ghost btn-sm" onclick="loadData()">
+                            <span>🔄</span>
+                            Refresh
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Outbound Date</th>
+                                    <th>Specification</th>
+                                    <th>Part Number</th>
+                                    <th style="text-align: right;">Qty</th>
+                                    <th style="text-align: right;">Sell Price</th>
+                                    <th style="text-align: right;">Sales Amount</th>
+                                    <th style="text-align: right;">Cost Amount</th>
+                                    <th style="text-align: right;">Gross Profit</th>
+                                    <th style="width: 100px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="outboundTableBody">
+                                <tr>
+                                    <td colspan="9" style="text-align: center; padding: 40px;">Loading records...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <div class="pagination">
+                            <div class="pagination-info" id="paginationInfo">
+                                Showing 0 records
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- New Outbound Modal -->
+    <div class="modal-overlay" id="outboundModal" style="display: none;">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">New Outbound Record</h3>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- Error Message -->
+                <div id="modalError" class="alert alert-error" style="display: none; margin-bottom: 16px;">
+                    <span class="alert-icon">!</span>
+                    <div class="alert-content">
+                        <div class="alert-text" id="modalErrorText"></div>
+                    </div>
+                </div>
+
+                <form id="outboundForm" onsubmit="handleSubmitOutbound(event)">
+                    <input type="hidden" id="editId" value="">
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Outbound Date <span class="required">*</span>
+                        </label>
+                        <input type="date" class="form-control" id="outboundDate" style="width: 200px;" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Select Product <span class="required">*</span>
+                        </label>
+                        <select class="form-control form-select" id="productSelect" onchange="updateStock()" required>
+                            <option value="">Loading products...</option>
+                        </select>
+                    </div>
+
+                    <!-- Stock Info -->
+                    <div class="batch-info" id="stockInfo" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="font-weight: 600; color: var(--gray-700);">Stock Information</span>
+                            <span class="badge badge-info">Available: <span id="availableStock">0</span> pcs</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.875rem;">
+                            <div>
+                                <span style="color: var(--gray-500);">Average Cost:</span>
+                                <span style="font-weight: 500; margin-left: 8px;" id="avgCost">$0.00</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--gray-500);">Total Inbound:</span>
+                                <span style="font-weight: 500; margin-left: 8px;" id="totalInbound">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="margin-top: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Outbound Quantity <span class="required">*</span>
+                            </label>
+                            <input type="number" class="form-control" placeholder="Enter quantity" id="outQty" oninput="calculateOutbound()" required min="1">
+                            <div class="form-hint" id="stockHint">Please select a product first</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                Sell Price <span class="required">*</span>
+                            </label>
+                            <div style="position: relative;">
+                                <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-500);">$</span>
+                                <input type="number" step="0.01" class="form-control" placeholder="0.00" style="padding-left: 28px;" id="sellPrice" oninput="calculateOutbound()" required min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" placeholder="Enter notes (optional)..." rows="2"></textarea>
+                    </div>
+
+                    <!-- Calculation Panel -->
+                    <div class="calc-panel">
+                        <div class="calc-row">
+                            <span>Outbound Quantity</span>
+                            <span id="calcOutQty">0 pcs</span>
+                        </div>
+                        <div class="calc-row">
+                            <span>Sell Price</span>
+                            <span id="calcSellPrice">$0.00</span>
+                        </div>
+                        <div class="calc-row">
+                            <span>Sales Amount</span>
+                            <span style="font-weight: 600;" id="calcSalesAmount">$0.00</span>
+                        </div>
+                        <div class="calc-row" style="color: var(--gray-500);">
+                            <span>Estimated Cost</span>
+                            <span id="calcCost">$0.00</span>
+                        </div>
+                        <div class="calc-row">
+                            <span style="font-weight: 600; color: var(--success-600);">Estimated Gross Profit</span>
+                            <span style="color: var(--success-600); font-size: 1.125rem;" id="calcProfit">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Warning for insufficient stock -->
+                    <div class="alert alert-error" id="stockWarning" style="display: none; margin-top: 16px;">
+                        <span class="alert-icon">!</span>
+                        <div class="alert-content">
+                            <div class="alert-title">Insufficient Stock</div>
+                            <div class="alert-text">Outbound quantity exceeds available stock. Please adjust the quantity or create an inbound record first.</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button type="submit" form="outboundForm" class="btn btn-primary" id="submitBtn">
+                    <span>📤</span>
+                    Confirm Outbound
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detailModal" style="display: none;">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title">Outbound Record Details</h3>
+                    <div style="font-size: 0.875rem; color: var(--gray-500); margin-top: 4px;" id="detailSubtitle">
+                        Loading...
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeDetail()">✕</button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <!-- Content will be dynamically loaded -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDetail()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from '../js/firebase-config.js';
+        import {
+            collection,
+            addDoc,
+            getDocs,
+            doc,
+            updateDoc,
+            deleteDoc,
+            query,
+            where,
+            orderBy,
+            serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+        import { initPageAuth, handleLogout, getNewItemIds } from '../js/page-auth.js';
+
+        let currentUser = null;
+        let allOutboundRecords = [];
+        let filteredRecords = [];
+        let currentFilter = 'all';
+        let productsWithStock = [];
+        let selectedProduct = null;
+        let newItemIds = new Set(); // Track new items for highlighting
+
+        // Initialize page
+        async function init() {
+            currentUser = await initPageAuth('outbound');
+            // Get new item IDs before marking page as viewed
+            if (currentUser) {
+                newItemIds = await getNewItemIds(currentUser.uid, 'outbound');
+            }
+            setDefaultDate();
+            await loadData();
+        }
+
+        init();
+
+        // Set default date to today
+        function setDefaultDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('outboundDate').value = today;
+        }
+
+        // Load all data
+        window.loadData = async function() {
+            await loadProductsWithStock();
+            await loadOutboundRecords();
+        };
+
+        // Load products with available stock from confirmed inbound records
+        async function loadProductsWithStock() {
+            try {
+                // Get all confirmed inbound records
+                const inboundRef = collection(db, 'inbound');
+                const inboundQuery = query(inboundRef, where('status', '==', 'confirmed'));
+                const inboundSnapshot = await getDocs(inboundQuery);
+
+                // Get all outbound records
+                const outboundRef = collection(db, 'outbound');
+                const outboundSnapshot = await getDocs(outboundRef);
+
+                // Calculate stock per product (by partNumber)
+                const stockMap = {};
+
+                inboundSnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const key = data.partNumber;
+                    if (!stockMap[key]) {
+                        stockMap[key] = {
+                            partNumber: data.partNumber,
+                            specification: data.specification,
+                            totalInbound: 0,
+                            totalOutbound: 0,
+                            totalCost: 0
+                        };
+                    }
+                    stockMap[key].totalInbound += data.quantity;
+                    stockMap[key].totalCost += data.quantity * data.unitPrice;
+                });
+
+                outboundSnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const key = data.partNumber;
+                    if (stockMap[key]) {
+                        stockMap[key].totalOutbound += data.quantity;
+                    }
+                });
+
+                // Convert to array with available stock
+                productsWithStock = Object.values(stockMap).map(p => ({
+                    ...p,
+                    availableStock: p.totalInbound - p.totalOutbound,
+                    avgCost: p.totalInbound > 0 ? p.totalCost / p.totalInbound : 0
+                })).filter(p => p.totalInbound > 0);
+
+                // Update product select dropdown
+                updateProductSelect();
+
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        // Update product select dropdown
+        function updateProductSelect() {
+            const select = document.getElementById('productSelect');
+            select.innerHTML = '<option value="">Select product...</option>';
+
+            productsWithStock.forEach((product, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${product.specification} (${product.partNumber}) - Stock: ${product.availableStock.toLocaleString()}`;
+                option.disabled = product.availableStock <= 0;
+                select.appendChild(option);
+            });
+        }
+
+        // Load outbound records from Firestore
+        async function loadOutboundRecords() {
+            const tbody = document.getElementById('outboundTableBody');
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px;">Loading records...</td></tr>';
+
+            try {
+                const outboundRef = collection(db, 'outbound');
+                const querySnapshot = await getDocs(outboundRef);
+
+                allOutboundRecords = [];
+                querySnapshot.forEach((doc) => {
+                    allOutboundRecords.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Sort by outbound date descending (client-side)
+                allOutboundRecords.sort((a, b) => (b.outboundDate || '').localeCompare(a.outboundDate || ''));
+
+                applyFilters();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading records:', error);
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--error-500);">Error loading records. Please try again.</td></tr>';
+            }
+        }
+
+        // Apply filters and render table
+        window.applyFilters = function() {
+            const searchTerm = document.getElementById('tableSearch').value.toLowerCase();
+            const today = new Date().toISOString().split('T')[0];
+            const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+            filteredRecords = allOutboundRecords.filter(record => {
+                // Date filter
+                if (currentFilter === 'today' && record.outboundDate !== today) return false;
+                if (currentFilter === 'week' && record.outboundDate < weekAgo) return false;
+
+                // Search filter
+                if (searchTerm) {
+                    const searchFields = [
+                        record.specification,
+                        record.partNumber
+                    ].join(' ').toLowerCase();
+                    if (!searchFields.includes(searchTerm)) return false;
+                }
+
+                return true;
+            });
+
+            renderTable();
+        };
+
+        // Render table with filtered records
+        function renderTable() {
+            const tbody = document.getElementById('outboundTableBody');
+
+            if (filteredRecords.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--gray-500);">No records found</td></tr>';
+                document.getElementById('totalRecords').textContent = '0 records';
+                document.getElementById('paginationInfo').textContent = 'Showing 0 records';
+                return;
+            }
+
+            tbody.innerHTML = filteredRecords.map(record => {
+                const salesAmount = record.quantity * record.sellPrice;
+                const costAmount = record.quantity * record.costPrice;
+                const profit = salesAmount - costAmount;
+                const margin = salesAmount > 0 ? (profit / salesAmount * 100) : 0;
+                const isPositive = profit >= 0;
+                const isNew = newItemIds.has(record.id);
+
+                return `
+                    <tr class="${isNew ? 'new-item' : ''}" ${isNew ? `onmouseenter="markAsSeen('${record.id}', this)"` : ''}>
+                        <td style="font-weight: 500;">${record.outboundDate}</td>
+                        <td>
+                            <div style="font-weight: 500;">${escapeHtml(record.specification)}${isNew ? '<span class="new-badge">New</span>' : ''}</div>
+                        </td>
+                        <td><span class="sku-display">${escapeHtml(record.partNumber)}</span></td>
+                        <td style="text-align: right; font-family: var(--font-family-mono);">${record.quantity.toLocaleString()}</td>
+                        <td style="text-align: right; font-family: var(--font-family-mono);">$${record.sellPrice.toFixed(2)}</td>
+                        <td style="text-align: right; font-family: var(--font-family-mono); font-weight: 600;">$${salesAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        <td style="text-align: right; font-family: var(--font-family-mono); color: var(--gray-500);">$${costAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        <td style="text-align: right;">
+                            <span class="amount ${isPositive ? 'positive' : 'negative'}">$${profit.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                            <div style="font-size: 0.75rem; color: ${isPositive ? 'var(--success-600)' : 'var(--error-600)'};">${margin.toFixed(1)}%</div>
+                        </td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn" title="View Details" onclick="showDetail('${record.id}')">👁️</button>
+                                <button class="action-btn" title="Delete" onclick="deleteRecord('${record.id}')" style="color: var(--error-500);">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('totalRecords').textContent = `${filteredRecords.length} records`;
+            document.getElementById('paginationInfo').textContent = `Showing ${filteredRecords.length} records`;
+        }
+
+        // Update statistics
+        function updateStats() {
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+
+            const monthlyRecords = allOutboundRecords.filter(record => record.outboundDate >= startOfMonth);
+
+            const totalBatches = monthlyRecords.length;
+            let totalSales = 0;
+            let totalCost = 0;
+
+            monthlyRecords.forEach(r => {
+                totalSales += r.quantity * r.sellPrice;
+                totalCost += r.quantity * r.costPrice;
+            });
+
+            const totalProfit = totalSales - totalCost;
+            const avgMargin = totalSales > 0 ? (totalProfit / totalSales * 100) : 0;
+
+            document.getElementById('statBatches').textContent = totalBatches.toLocaleString();
+            document.getElementById('statSales').textContent = '$' + totalSales.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+            document.getElementById('statProfit').textContent = '$' + totalProfit.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+            document.getElementById('statMargin').textContent = avgMargin.toFixed(1) + '%';
+        }
+
+        // Set filter tab
+        window.setFilter = function(filter, element) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+            applyFilters();
+        };
+
+        // Reset filters
+        window.resetFilters = function() {
+            document.getElementById('tableSearch').value = '';
+            applyFilters();
+        };
+
+        // Handle search
+        window.handleSearch = function() {
+            applyFilters();
+        };
+
+        // Open modal for new record
+        window.openModal = function() {
+            document.getElementById('modalTitle').textContent = 'New Outbound Record';
+            document.getElementById('submitBtn').innerHTML = '<span>📤</span> Confirm Outbound';
+            document.getElementById('outboundForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('modalError').style.display = 'none';
+            document.getElementById('stockInfo').style.display = 'none';
+            document.getElementById('stockWarning').style.display = 'none';
+            document.getElementById('stockHint').textContent = 'Please select a product first';
+            setDefaultDate();
+            selectedProduct = null;
+            calculateOutbound();
+            document.getElementById('outboundModal').style.display = 'flex';
+        };
+
+        // Close modal
+        window.closeModal = function() {
+            document.getElementById('outboundModal').style.display = 'none';
+        };
+
+        // Update stock info when product is selected
+        window.updateStock = function() {
+            const select = document.getElementById('productSelect');
+            const index = select.value;
+
+            if (index === '') {
+                selectedProduct = null;
+                document.getElementById('stockInfo').style.display = 'none';
+                document.getElementById('stockHint').textContent = 'Please select a product first';
+                calculateOutbound();
+                return;
+            }
+
+            selectedProduct = productsWithStock[parseInt(index)];
+            document.getElementById('stockInfo').style.display = 'block';
+            document.getElementById('availableStock').textContent = selectedProduct.availableStock.toLocaleString();
+            document.getElementById('avgCost').textContent = '$' + selectedProduct.avgCost.toFixed(2);
+            document.getElementById('totalInbound').textContent = selectedProduct.totalInbound.toLocaleString();
+            document.getElementById('stockHint').textContent = 'Available stock: ' + selectedProduct.availableStock.toLocaleString() + ' pcs';
+            document.getElementById('stockHint').style.color = 'var(--gray-500)';
+
+            calculateOutbound();
+        };
+
+        // Calculate outbound amounts
+        window.calculateOutbound = function() {
+            const qty = parseInt(document.getElementById('outQty').value) || 0;
+            const sellPrice = parseFloat(document.getElementById('sellPrice').value) || 0;
+            const costPrice = selectedProduct ? selectedProduct.avgCost : 0;
+
+            const salesAmount = qty * sellPrice;
+            const costAmount = qty * costPrice;
+            const profit = salesAmount - costAmount;
+
+            document.getElementById('calcOutQty').textContent = qty + ' pcs';
+            document.getElementById('calcSellPrice').textContent = '$' + sellPrice.toFixed(2);
+            document.getElementById('calcSalesAmount').textContent = '$' + salesAmount.toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('calcCost').textContent = '$' + costAmount.toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('calcProfit').textContent = '$' + profit.toLocaleString(undefined, {minimumFractionDigits: 2});
+
+            // Check stock
+            const submitBtn = document.getElementById('submitBtn');
+            if (selectedProduct && qty > selectedProduct.availableStock) {
+                document.getElementById('stockWarning').style.display = 'flex';
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+                document.getElementById('stockHint').textContent = 'Exceeds available stock by ' + (qty - selectedProduct.availableStock) + ' pcs';
+                document.getElementById('stockHint').style.color = 'var(--error-600)';
+            } else {
+                document.getElementById('stockWarning').style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                if (selectedProduct) {
+                    document.getElementById('stockHint').textContent = 'Available stock: ' + selectedProduct.availableStock.toLocaleString() + ' pcs';
+                    document.getElementById('stockHint').style.color = 'var(--gray-500)';
+                }
+            }
+        };
+
+        // Handle form submit
+        window.handleSubmitOutbound = async function(event) {
+            event.preventDefault();
+
+            if (!selectedProduct) {
+                document.getElementById('modalErrorText').textContent = 'Please select a product';
+                document.getElementById('modalError').style.display = 'flex';
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const errorDiv = document.getElementById('modalError');
+            const errorText = document.getElementById('modalErrorText');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+            errorDiv.style.display = 'none';
+
+            try {
+                const qty = parseInt(document.getElementById('outQty').value);
+                const sellPrice = parseFloat(document.getElementById('sellPrice').value);
+
+                // Double-check stock availability
+                if (qty > selectedProduct.availableStock) {
+                    throw new Error('Insufficient stock');
+                }
+
+                const data = {
+                    outboundDate: document.getElementById('outboundDate').value,
+                    specification: selectedProduct.specification,
+                    partNumber: selectedProduct.partNumber,
+                    quantity: qty,
+                    sellPrice: sellPrice,
+                    costPrice: selectedProduct.avgCost,
+                    notes: document.getElementById('notes').value.trim(),
+                    createdAt: serverTimestamp(),
+                    createdBy: currentUser?.uid || 'unknown'
+                };
+
+                await addDoc(collection(db, 'outbound'), data);
+
+                closeModal();
+                await loadData();
+            } catch (error) {
+                console.error('Error saving record:', error);
+                errorText.textContent = error.message || 'Error saving record. Please try again.';
+                errorDiv.style.display = 'flex';
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span>📤</span> Confirm Outbound';
+        };
+
+        // Delete record
+        window.deleteRecord = async function(id) {
+            if (!confirm('Are you sure you want to delete this outbound record? This will restore the stock.')) {
+                return;
+            }
+
+            try {
+                await deleteDoc(doc(db, 'outbound', id));
+                await loadData();
+            } catch (error) {
+                console.error('Error deleting record:', error);
+                alert('Error deleting record. Please try again.');
+            }
+        };
+
+        // Show detail modal
+        window.showDetail = function(id) {
+            const record = allOutboundRecords.find(r => r.id === id);
+            if (!record) return;
+
+            const salesAmount = record.quantity * record.sellPrice;
+            const costAmount = record.quantity * record.costPrice;
+            const profit = salesAmount - costAmount;
+            const margin = salesAmount > 0 ? (profit / salesAmount * 100) : 0;
+
+            document.getElementById('detailSubtitle').innerHTML = `
+                ${escapeHtml(record.specification)} · <span class="sku-display" style="font-size: 0.75rem;">${escapeHtml(record.partNumber)}</span>
+            `;
+
+            document.getElementById('detailContent').innerHTML = `
+                <div class="detail-grid" style="margin-bottom: 24px;">
+                    <div class="detail-item">
+                        <span class="detail-label">Outbound Date</span>
+                        <span class="detail-value">${record.outboundDate}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Quantity</span>
+                        <span class="detail-value" style="font-family: var(--font-family-mono); font-weight: 600;">${record.quantity.toLocaleString()}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Sell Price</span>
+                        <span class="detail-value" style="font-family: var(--font-family-mono);">$${record.sellPrice.toFixed(2)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Sales Amount</span>
+                        <span class="detail-value" style="font-family: var(--font-family-mono); font-weight: 600;">$${salesAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Cost Price</span>
+                        <span class="detail-value" style="font-family: var(--font-family-mono);">$${record.costPrice.toFixed(2)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Cost Amount</span>
+                        <span class="detail-value" style="font-family: var(--font-family-mono); color: var(--gray-500);">$${costAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Gross Profit</span>
+                        <span class="detail-value" style="font-family: var(--font-family-mono); font-weight: 600; color: ${profit >= 0 ? 'var(--success-600)' : 'var(--error-600)'};">$${profit.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Gross Margin</span>
+                        <span class="detail-value" style="font-weight: 600; color: ${margin >= 0 ? 'var(--success-600)' : 'var(--error-600)'};">${margin.toFixed(1)}%</span>
+                    </div>
+                </div>
+                ${record.notes ? `
+                    <div style="margin-top: 24px;">
+                        <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 12px;">Notes</h4>
+                        <div style="background: var(--gray-50); border-radius: var(--radius-md); padding: 16px; font-size: 0.875rem; white-space: pre-wrap; line-height: 1.6;">${escapeHtml(record.notes)}</div>
+                    </div>
+                ` : ''}
+            `;
+
+            document.getElementById('detailModal').style.display = 'flex';
+        };
+
+        // Close detail modal
+        window.closeDetail = function() {
+            document.getElementById('detailModal').style.display = 'none';
+        };
+
+        // Utility function
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Mark item as seen (remove highlight on hover)
+        window.markAsSeen = function(id, element) {
+            newItemIds.delete(id);
+            element.classList.remove('new-item');
+            // Remove the "New" badge
+            const badge = element.querySelector('.new-badge');
+            if (badge) badge.remove();
+        };
+
+        // Make logout available globally
+        window.handleLogout = handleLogout;
+    </script>
+</body>
+</html>
