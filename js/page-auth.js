@@ -38,8 +38,9 @@ let currentUserData = null;
  * @param {string} currentPage - The current page name for notification tracking (e.g., 'products', 'inbound', 'outbound')
  */
 export async function initPageAuth(currentPage = null) {
+    const loginPath = getLoginPath();
     try {
-        const user = await requireAuth('../pages/login.html');
+        const user = await requireAuth(loginPath);
 
         if (user) {
             currentUserData = user;
@@ -60,7 +61,7 @@ export async function initPageAuth(currentPage = null) {
         return user;
     } catch (error) {
         console.error('Page auth error:', error);
-        window.location.href = '../pages/login.html';
+        window.location.href = loginPath;
         return null;
     }
 }
@@ -133,10 +134,16 @@ function setupLogoutButton() {
 export async function handleLogout() {
     const result = await logout();
     if (result.success) {
-        window.location.href = '../pages/login.html';
+        window.location.href = getLoginPath();
     } else {
         alert('Logout failed: ' + result.error);
     }
+}
+
+function getLoginPath() {
+    return window.location.pathname.includes('/pages/')
+        ? '../pages/login.html'
+        : './pages/login.html';
 }
 
 /**
