@@ -24,7 +24,7 @@
             <nav class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Overview</div>
-                    <a href="../pages/index.html" class="nav-item">
+                    <a href="../index.html" class="nav-item">
                         <span class="nav-item-icon">📊</span>
                         <span>Dashboard</span>
                     </a>
@@ -224,7 +224,7 @@
         // Check admin access on page load
         async function init() {
             try {
-                currentUser = await requireAdmin('../pages/index.html');
+                currentUser = await requireAdmin('../index.html');
                 updateUserDisplay(currentUser);
                 loadUsers();
             } catch (error) {

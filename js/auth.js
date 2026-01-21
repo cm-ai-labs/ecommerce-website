@@ -309,7 +309,7 @@ export function requireAuth(redirectUrl = '../pages/login.html') {
  * Check if user is admin
  * Redirects to dashboard if not admin
  */
-export function requireAdmin(redirectUrl = '../pages/index.html') {
+export function requireAdmin(redirectUrl = 'index.html') {
     return new Promise((resolve) => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             unsubscribe();
@@ -331,7 +331,7 @@ export function requireAdmin(redirectUrl = '../pages/index.html') {
  * Redirect to dashboard if already logged in
  * Use this on login page
  */
-export function redirectIfAuthenticated(redirectUrl = '../pages/index.html') {
+export function redirectIfAuthenticated(redirectUrl = 'index.html') {
     return new Promise((resolve) => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             unsubscribe();

@@ -277,7 +277,7 @@
         import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
 
         // Check if already logged in
-        redirectIfAuthenticated('../pages/index.html');
+        redirectIfAuthenticated('../index.html');
 
         // Check if any users exist and show/hide first time setup
         async function checkFirstTimeSetup() {
@@ -319,7 +319,7 @@
                     // Store user data
                     storeUserLocally(result.user, rememberMe);
                     // Redirect to dashboard
-                    window.location.href = '../pages/index.html';
+                    window.location.href = '../index.html';
                 } else {
                     loginErrorText.textContent = result.error;
                     loginError.style.display = 'flex';
