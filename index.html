@@ -280,7 +280,7 @@
     </div>
 
     <script type="module">
-        import { db } from 'js/firebase-config.js';
+        import { db } from './js/firebase-config.js';
         import {
             collection,
             getDocs,
@@ -289,7 +289,7 @@
             orderBy,
             limit
         } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
-        import { initPageAuth, handleLogout } from 'js/page-auth.js';
+        import { initPageAuth, handleLogout } from './js/page-auth.js';
 
         let currentUser = null;
 
